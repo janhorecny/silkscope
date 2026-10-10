@@ -10,7 +10,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-ECEEF4?style=flat-square&labelColor=0A0C11" alt="MIT"></a>
 </p>
 
-**Silkscope** is a live, local observatory for **Claude Code** and **Codex**. Every agent session
+**Silkscope** is a live, local observatory for **Claude Code**, **Codex**, **pi**, **opencode**,
+**Gemini CLI** and **Factory Droid**. Every agent session
 becomes a crawler that walks a nebula of your codebase. It throws tentacles at the files it reads,
 the commands it runs and the URLs it fetches. Failed tool calls light up as flags. Underneath, a HUD
 keeps score.
@@ -81,7 +82,7 @@ Press `V` to switch views.
 
 ## Watch one session or all of them
 
-The **instances** list (top right) shows every Claude Code and Codex session with its project,
+The **instances** list (top right) shows every agent session with its project,
 current section, event count and last activity. Click one to rebuild the map and every panel for
 that session alone, with the camera locked on it. **all sessions** gives a calm wide shot of
 everything. `Tab` cycles through sessions, `A` goes back to all.
@@ -111,9 +112,10 @@ silkscope [options]
   --no-open           do not open the browser
   --demo              start with the synthetic demo feed
   --hours <n>         hours of history to replay on load (default 8)
-  --sources <ids>     comma-separated: claude,codex (default: every one whose dir exists)
-  --claude-dir <dir>  Claude Code transcripts (default ~/.claude/projects, honours CLAUDE_CONFIG_DIR)
-  --codex-dir <dir>   Codex transcripts (default ~/.codex/sessions, honours CODEX_HOME)
+  --check             test every agent adapter against your own transcripts, then exit
+  --sources <ids>     comma-separated: claude,codex,pi,opencode,gemini,droid (default: every one found)
+  --<agent>-dir <dir> where that agent's transcripts live (see Supported agents)
+  --version           print the version
 ```
 
 ## Privacy
@@ -135,10 +137,28 @@ If the frame rate drops, quality adapts on its own. Press `P` to watch the numbe
 
 ## Supported agents
 
-| agent | transcripts | status |
+| agent | where Silkscope reads | how it was verified |
 |-|-|-|
-| Claude Code | `~/.claude/projects/**/*.jsonl` | verified against live sessions |
-| Codex CLI | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` | verified against the documented format and tests |
+| Claude Code | `~/.claude/projects/**/*.jsonl` | live sessions: 100 % of 14,792 tool results matched to their calls |
+| Codex CLI | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` | fixture tests for every record shape in Codex 0.104 to 0.147 |
+| pi | `~/.pi/agent/sessions/**/*.jsonl` | live sessions: 100 % of 1,974 tool results matched |
+| opencode | `~/.local/share/opencode/opencode.db` (SQLite, read-only, Node ≥ 22.5) | live database: 100 % of 3,042 tool results matched |
+| Gemini CLI | `~/.gemini/tmp/*/chats/session-*.jsonl` | live sessions: 100 % of 17 tool results matched |
+| Factory Droid | `~/.factory/sessions/**/*.jsonl` | live sessions (text) plus fixture tests (tool blocks) |
+
+Every location honours the agent's own environment variables (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`,
+`PI_CODING_AGENT_DIR`, `XDG_DATA_HOME`, `GEMINI_CLI_HOME`, `FACTORY_HOME`) and has a `--<agent>-dir` flag.
+
+**Check it on your machine.** `silkscope --check` runs every adapter over your newest transcripts and
+reports how many tool results it matched to their calls. Nothing is shown from the transcripts
+themselves. Anything well below 100 % means an agent changed its format, and an issue with that
+output helps fix it quickly.
+
+```
+  ✓ claude     200 sessions    5462 events  100% results matched (2662/2662)  69 flagged
+  ✓ pi          27 sessions    4516 events  100% results matched (1974/1974)  138 flagged
+  ✓ opencode    41 sessions    5712 events  100% results matched (3042/3042)  80 flagged
+```
 
 Adding another agent takes one adapter file in `server/sources/`. See
 [docs/ADDING-A-SOURCE.md](docs/ADDING-A-SOURCE.md).

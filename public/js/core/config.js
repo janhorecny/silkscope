@@ -18,10 +18,17 @@ export const CATEGORIES = [
 ];
 export const CAT = Object.fromEntries(CATEGORIES.map((c, i) => [c.key, { ...c, index: i }]));
 
+// One crawler style per source adapter id (server/sources/*). The shell colour identifies the
+// agent; the core is a second cue so two similar shells never read the same.
 export const AGENTS = {
   claude: { body: BRAND.spinneret, core: BRAND.venom, label: 'claude' },
   codex: { body: '#F2F2F2', core: '#16E2FB', label: 'codex' },
+  pi: { body: '#FFB454', core: BRAND.spinneret, label: 'pi' },
+  opencode: { body: '#D8CFA8', core: '#FF7A3D', label: 'opencode' },
+  gemini: { body: '#7EA8FF', core: '#F2D747', label: 'gemini' },
+  droid: { body: '#FF8AD8', core: BRAND.silk, label: 'droid' },
 };
+export const agentStyle = (id) => AGENTS[id] || { body: '#B9C1CF', core: BRAND.silk, label: id || 'agent' };
 
 export const FLAG = BRAND.venom;
 export const PENDING = BRAND.pending;

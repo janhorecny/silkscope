@@ -147,7 +147,7 @@ function draw() {
   g.fillStyle = C.venom; g.fillRect(150, 292, 54, 4);
   g.font = `500 26px ${FONT}`; g.fillStyle = C.silk; g.fillText('Watch your coding agents spin.', 72, 360);
   g.font = `400 17px ${FONT}`; g.fillStyle = '#9AA3B5';
-  g.fillText('A live, local observatory for Claude Code & Codex.', 72, 398);
+  g.fillText('A live, local observatory for your coding agents.', 72, 398);
   g.fillText('Zero dependencies · runs on your machine · nothing leaves it.', 72, 424);
   // Section legend chips.
   const cats = [['prompt', C.silk], ['think', C.think], ['read', C.read], ['search', C.search], ['edit', C.edit], ['exec', C.exec], ['net', C.net], ['agent', C.agent]];
@@ -158,7 +158,7 @@ function draw() {
     x += g.measureText(n).width + 34;
   }
   g.font = `400 14px ${FONT}`; g.fillStyle = C.mist;
-  g.fillText('Claude Code  ·  Codex  ·  pluggable sources', 72, 560);
+  g.fillText('Claude Code · Codex · pi · opencode · Gemini CLI · Droid', 72, 560);
   g.fillStyle = C.teal; g.fillText('▸', 56, 560);
   document.title = 'ready';
 }

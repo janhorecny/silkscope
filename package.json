@@ -1,18 +1,22 @@
 {
   "name": "silkscope",
-  "version": "0.1.0",
-  "description": "Watch your coding agents spin. A live, local observatory for Claude Code and Codex: every session is a crawler walking a nebula of your codebase.",
+  "version": "0.2.0",
+  "description": "Watch your coding agents spin. A live, local observatory for Claude Code, Codex, pi, opencode, Gemini CLI and Factory Droid.",
   "keywords": [
+    "ai-agents",
+    "canvas",
     "claude-code",
     "codex",
-    "ai-agents",
     "coding-agents",
-    "observability",
-    "visualization",
-    "canvas",
-    "telemetry",
     "devtools",
-    "local-first"
+    "factory-droid",
+    "gemini-cli",
+    "local-first",
+    "observability",
+    "opencode",
+    "pi",
+    "telemetry",
+    "visualization"
   ],
   "homepage": "https://github.com/janhorecny/silkscope#readme",
   "bugs": {

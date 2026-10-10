@@ -146,37 +146,43 @@ That is all the server needs. `silkscope --help` now lists `--aider-dir <dir>`,
 
 ## 4. Client
 
-The client knows agents by id in three places.
-
-**Crawler style** (`public/js/core/config.js`). `body` colours the shell, cilia, caption and glow;
-`core` the diamond core and pulse ring; `label` is the caption and inspector name. Without an entry
-the crawler falls back to the Claude style (`AGENTS[agent] || AGENTS.claude` in `spider.js`).
+The client knows agents by id in one place: **crawler style** in `AGENTS`
+(`public/js/core/config.js`). `body` colours the shell, cilia, caption, glow and the instance-list
+dot; `core` the diamond core and pulse ring; `label` is the caption and inspector name. Unknown ids
+fall back to a neutral grey style (`agentStyle()`), so a new adapter works before you pick colours.
 
 ```js
 export const AGENTS = {
   claude: { body: BRAND.spinneret, core: BRAND.venom, label: 'claude' },
-  codex: { body: '#F2F2F2', core: '#16E2FB', label: 'codex' },
+  // …
   aider: { body: '#9FB4FF', core: BRAND.pending, label: 'aider' },
 };
 ```
 
-Pick colours that stay distinct from the section palette and from Venom (`#FF3D7F`), which is
-reserved for flags (see `brand/BRAND.md`).
+Pick colours that stay distinct from the other crawlers, the section palette and Venom
+(`#FF3D7F`), which is reserved for flags (see `brand/BRAND.md`). The **agents** setting builds its
+options from `AGENTS` (`all` plus one per id), so the new agent is filterable automatically.
 
-**Agents filter** (`public/js/core/settings.js`). The `agents` setting lists ids explicitly. With
-the default `both`, every agent (including a new one) is shown; to make it filterable on its own,
-add an option:
+## 4b. Database sources
+
+Some agents keep history in a database instead of an append-only file (opencode uses SQLite). Such
+an adapter sets `kind: 'db'` and implements a different trio instead of `fileFilter`, `newContext`,
+`parseLine` and `primeLines`:
 
 ```js
-{ key: 'agents', label: 'Agents', hint: 'which agents feed the map and the HUD',
-  options: [['both', 'all'], ['claude', 'claude'], ['codex', 'codex'], ['aider', 'aider']], def: 'both' },
+{
+  id, label, kind: 'db', defaultDir(env, home),
+  async open(dir) -> handle | null,          // null: not installed / unreadable, silently skipped
+  backfill(handle, sinceMs, max) -> SwarmEvent[],  // recent history, oldest first
+  poll(handle) -> SwarmEvent[],              // called every watcher tick; only what changed
+  sessions?(handle) -> number,               // for the CLI banner and --check
+  close?(handle),
+}
 ```
 
-Keep the value `both` (it is what `Feed.passes()` and `InstancesPanel` test for).
-
-**Instance list dot** (`public/js/ui/panels/instances.js`). The row colour is currently hard-coded
-(`s.agent === 'codex' ? '#f2f2f2' : '#3fe0c0'`), so a new agent shows the Claude colour there.
-Using `AGENTS[s.agent]?.body` would fix that.
+See `server/sources/opencode.mjs`: it opens the database read-only through Node's built-in
+`node:sqlite` (Node ≥ 22.5, so still zero dependencies), and skips the query entirely unless the
+database or its WAL file changed since the last tick.
 
 ## 5. Test it
 

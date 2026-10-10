@@ -61,7 +61,7 @@ export class ToolbarPanel extends Panel {
         e.preventDefault();
         // Same filters as the instances list, so Tab never lands on a hidden session.
         const agents = settings.get('agents'), win = +settings.get('window') * 60e3, now = Date.now();
-        const list = feed.instances().filter((s) => (agents === 'both' || s.agent === agents) && (!win || now - s.lastTs < win)).slice(0, 12).map((s) => s.id);
+        const list = feed.instances().filter((s) => (agents === 'all' || s.agent === agents) && (!win || now - s.lastTs < win)).slice(0, 12).map((s) => s.id);
         if (!list.length) return;
         const i = list.indexOf(feed.filter);
         feed.watch(list[(i + 1) % list.length]);

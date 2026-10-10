@@ -1,7 +1,8 @@
 # Security and privacy
 
-Silkscope reads the transcript files that Claude Code and Codex already write to your disk
-(`~/.claude/projects`, `~/.codex/sessions`). Those files can contain source code, prompts, command
+Silkscope reads the transcripts your coding agents already keep on disk (for example
+`~/.claude/projects`, `~/.codex/sessions`, `~/.pi/agent/sessions`; opencode's SQLite database is opened
+read-only). Those files can contain source code, prompts, command
 output and, occasionally, secrets. The design keeps that data on your machine:
 
 - The server binds to `127.0.0.1` by default. Binding to another interface (`--host 0.0.0.0`)

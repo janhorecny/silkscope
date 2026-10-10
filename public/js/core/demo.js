@@ -30,6 +30,7 @@ export function startDemo(emit) {
     { id: 'demo-claude-1', agent: 'claude', project: 'storefront', cat: 'prompt', model: 'claude-opus-5-5' },
     { id: 'demo-codex-1', agent: 'codex', project: 'api-server', cat: 'prompt', model: 'gpt-5-codex' },
     { id: 'demo-claude-2', agent: 'claude', project: 'design-system', cat: 'prompt', model: 'claude-sonnet-5-5' },
+    { id: 'demo-pi-1', agent: 'pi', project: 'docs-site', cat: 'prompt', model: 'claude-haiku-5-5' },
   ];
   let n = 0;
   const timers = [];
@@ -41,7 +42,8 @@ export function startDemo(emit) {
         : cat === 'net' ? pick(NET) : cat === 'agent' ? pick(AGENT) : cat === 'prompt' ? pick(PROMPTS) : pick(THINK);
       const id = `demo-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       const pending = !['think', 'prompt'].includes(cat);
-      const verb = s.agent === 'codex' && cat === 'exec' ? 'shell' : s.agent === 'codex' && cat === 'edit' ? 'patch' : VERB[cat];
+      const verb = s.agent === 'codex' && cat === 'exec' ? 'shell' : s.agent === 'codex' && cat === 'edit' ? 'patch'
+        : s.agent === 'pi' ? ({ read: 'read', search: 'grep', edit: 'edit', exec: 'bash', net: 'web_search' })[cat] || VERB[cat] : VERB[cat];
       emit({ demo: true, id, ts: Date.now(), agent: s.agent, session: s.id, project: s.project, model: s.model, cat, verb, target,
         detail: `${verb} ${target}`, status: pending ? 'pending' : 'ok', tokens: Math.round(rand(400, 9000)) });
       if (pending) {

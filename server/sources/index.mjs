@@ -6,8 +6,12 @@
 
 import claude from './claude.mjs';
 import codex from './codex.mjs';
+import pi from './pi.mjs';
+import opencode from './opencode.mjs';
+import gemini from './gemini.mjs';
+import droid from './droid.mjs';
 
 /** @type {import('../events.mjs').SourceAdapter[]} */
-export const ADAPTERS = [claude, codex];
+export const ADAPTERS = [claude, codex, pi, opencode, gemini, droid];
 
 export const adapterById = (id) => ADAPTERS.find((a) => a.id === id);

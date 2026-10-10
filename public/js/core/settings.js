@@ -1,5 +1,7 @@
 // User settings: one schema drives the panel, the defaults and persistence (localStorage).
 
+import { AGENTS } from './config.js';
+
 const KEY = 'swarm.settings';
 const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -7,7 +9,7 @@ export const SCHEMA = [
   { key: 'view', label: 'View', hint: 'crawler: the reference look · neural: abstract network of targets', options: [['crawler', 'crawler'], ['neural', 'neural']], def: 'crawler' },
   { key: 'camera', label: 'Camera', hint: 'cinematic: cuts and slow dolly when the watched session changes section · calm: smooth follow · still: only you move it', options: [['cinematic', 'cinematic'], ['calm', 'calm'], ['still', 'still']], def: 'cinematic' },
   { key: 'labels', label: 'Labels', hint: 'touched: only targets a tentacle is on · all: every recent target · none: hover only', options: [['touched', 'touched'], ['all', 'all recent'], ['none', 'none']], def: 'touched' },
-  { key: 'agents', label: 'Agents', hint: 'which agents feed the map and the HUD', options: [['both', 'both'], ['claude', 'claude'], ['codex', 'codex']], def: 'both' },
+  { key: 'agents', label: 'Agents', hint: 'which agents feed the map and the HUD', options: [['all', 'all'], ...Object.keys(AGENTS).map((id) => [id, id])], def: 'all' },
   { key: 'window', label: 'Instance list', hint: 'hide sessions with no activity in this window', options: [['15', '15 min'], ['60', '1 h'], ['480', '8 h'], ['0', 'all']], def: '480' },
   { key: 'quality', label: 'Render quality', hint: 'auto drops resolution and effects when FPS falls below ~45', options: [['auto', 'auto'], ['full', 'full'], ['eco', 'eco']], def: 'auto' },
   { key: 'motion', label: 'Motion', hint: 'reduced: no tentacle fans, bursts, camera swoops or matrix rain', options: [['full', 'full'], ['reduced', 'reduced']], def: prefersReduced ? 'reduced' : 'full' },

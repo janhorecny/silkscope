@@ -6,7 +6,7 @@
 //  - before it leaves a section it throws a fan of long tentacles into the next one (anticipation)
 //  - tentacles are thin solid curves with dots flowing toward the target, ending in a ring
 
-import { AGENTS } from '../core/config.js';
+import { agentStyle } from '../core/config.js';
 import { TAU, clamp, rand, noise2, hexToRgb, rgba, rgbaQ, easeOutCubic, easeInOutCubic, quadAt } from '../core/util.js';
 
 const CILIA = 26;
@@ -21,7 +21,7 @@ export class Spider {
     this.session = session;
     this.agent = agent;
     this.project = project;
-    this.style = AGENTS[agent] || AGENTS.claude;
+    this.style = agentStyle(agent);
     this.bodyRgb = hexToRgb(this.style.body);
     this.coreRgb = hexToRgb(this.style.core);
     this.x = x; this.y = y; this.vx = 0; this.vy = 0;

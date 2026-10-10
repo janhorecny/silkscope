@@ -31,7 +31,7 @@ export class Feed {
   passes(ev) {
     if (this.filter && ev.session !== this.filter) return false;
     const a = this.settings.get('agents');
-    return a === 'both' || ev.agent === a;
+    return a === 'all' || ev.agent === a;
   }
 
   ingest(ev, animate = true) {

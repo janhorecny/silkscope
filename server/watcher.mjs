@@ -1,4 +1,5 @@
-// Tails JSONL transcripts for any set of source adapters (see sources/index.mjs).
+// Tails JSONL transcripts for any set of source adapters (see sources/index.mjs), and polls
+// database sources (adapter.kind === 'db', e.g. opencode's SQLite) through their own open/poll.
 // Polling (not fs.watch) keeps it portable across macOS, Linux and Windows.
 
 import fs from 'node:fs';
@@ -31,7 +32,8 @@ export class Watcher extends EventEmitter {
     this.files = new Map(); // path -> { offset, partial, skipFirst, ctx, source, mtime, slot }
     this.dirs = new Map();  // dir -> { mtime, files, dirs }: lets the scan skip unchanged directories
     this.history = [];
-    this.stats = { files: 0, active: 0, backfilledFiles: 0 };
+    this.stats = { files: 0, active: 0, backfilledFiles: 0, databases: 0 };
+    this.dbs = []; // { src, h, lastEvent }
     this.ticks = 0;
     this.scans = 0;
     this.slots = 0;
@@ -44,6 +46,7 @@ export class Watcher extends EventEmitter {
     // Reading stops early, so start-up time and peak memory don't grow with the number of old sessions.
     const all = [];
     for (const src of this.sources) {
+      if (src.adapter.kind === 'db') continue;
       for (const f of this.#walk(src, src.dir, true)) {
         try { all.push([f, src, fs.statSync(f)]); } catch {}
       }
@@ -65,6 +68,14 @@ export class Watcher extends EventEmitter {
         rec.offset = st.size;
       }
     }
+    for (const src of this.sources) {
+      if (src.adapter.kind !== 'db') continue;
+      const h = await src.adapter.open(src.dir).catch(() => null);
+      if (!h) continue;
+      this.dbs.push({ src, h, lastEvent: 0 });
+      try { for (const ev of src.adapter.backfill(h, now - this.backfillMs, this.backfillMax)) backfill.push(ev); } catch {}
+    }
+    this.stats.databases = this.dbs.length;
     backfill.sort((a, b) => a.ts - b.ts);
     this.history = backfill.slice(-this.backfillMax);
     this.stats.backfilledFiles = read;
@@ -74,6 +85,7 @@ export class Watcher extends EventEmitter {
   }
 
   stop() {
+    for (const { src, h } of this.dbs) src.adapter.close?.(h);
     for (const t of this.timers) clearTimeout(t);
     this.timers.clear();
     this.stopped = true;
@@ -185,12 +197,20 @@ export class Watcher extends EventEmitter {
       }
       if (now - rec.mtime < ACTIVE_MS) active++;
     }
+    for (const d of this.dbs) {
+      let evs = [];
+      try { evs = d.src.adapter.poll(d.h); } catch {}
+      for (const ev of evs) this.#emit(ev);
+      if (evs.length) d.lastEvent = now;
+      if (now - d.lastEvent < ACTIVE_MS) active++;
+    }
     this.stats.active = active;
   }
 
   async #scan() {
     const full = ++this.scans % FULL_RESCAN_EVERY === 0;
     for (const src of this.sources) {
+      if (src.adapter.kind === 'db') continue;
       for (const f of this.#walk(src, src.dir, full)) {
         if (this.files.has(f)) continue;
         let st;

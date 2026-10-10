@@ -16,4 +16,4 @@ render() { # $1 html, $2 png, $3 size
   echo "rendered $2"
 }
 render banner.html banner.png 1280,640
-rm -rf "$TMP"
+sleep 1; rm -rf "$TMP" 2>/dev/null || true  # Chrome may still be flushing its profile

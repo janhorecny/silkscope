@@ -87,11 +87,20 @@ test('every adapter is complete and emits only known categories', () => {
       { type: 'user', uuid: 'v', message: { content: 'hello' } }],
     codex: [{ type: 'response_item', payload: { type: 'web_search_call', action: { query: 'q' } } },
       { type: 'response_item', payload: { type: 'function_call', name: 'update_plan', call_id: 'p', arguments: '{"plan":[1,2]}' } }],
+    pi: [{ type: 'message', id: 'm', message: { role: 'assistant', content: [{ type: 'toolCall', id: 't', name: 'mystery', arguments: {} }] } },
+      { type: 'message', id: 'n', message: { role: 'toolResult', toolCallId: 't', isError: false, content: [] } }],
+    gemini: [{ id: 'g', type: 'gemini', content: 'ok', toolCalls: [{ id: 'c', name: 'run_shell_command', args: { command: 'ls' }, status: 'success' }] }],
+    droid: [{ type: 'message', id: 'd', message: { role: 'assistant', content: [{ type: 'tool_use', id: 'u', name: 'Execute', input: { command: 'npm test' } }] } }],
   };
   for (const a of ADAPTERS) {
-    for (const k of ['id', 'label', 'defaultDir', 'fileFilter', 'newContext', 'parseLine']) assert.ok(a[k], `${a.id}.${k}`);
-    assert.equal(typeof a.primeLines, 'number');
+    for (const k of ['id', 'label', 'defaultDir']) assert.ok(a[k], `${a.id}.${k}`);
     assert.ok(path.isAbsolute(a.defaultDir({}, '/home/me')));
+    if (a.kind === 'db') {
+      for (const k of ['open', 'backfill', 'poll']) assert.equal(typeof a[k], 'function', `${a.id}.${k}`);
+      continue;
+    }
+    for (const k of ['fileFilter', 'newContext', 'parseLine']) assert.ok(a[k], `${a.id}.${k}`);
+    assert.equal(typeof a.primeLines, 'number');
     const c = a.newContext('/x/-Users-me-dev-app/abc.jsonl');
     assert.equal(c.session, 'abc');
     assert.ok(c.seen instanceof Set);
@@ -112,9 +121,12 @@ test('claude project falls back to the encoded dir name', () => {
 });
 
 test('resolveSources: --sources filter, explicit dirs, env defaults', () => {
-  const env = { CODEX_HOME: '/cx' };
-  assert.deepEqual(resolveSources({}, env, '/h').map((s) => [s.adapter.id, s.dir]),
-    [['claude', path.join('/h', '.claude', 'projects')], ['codex', path.join('/cx', 'sessions')]]);
+  const env = { CODEX_HOME: '/cx', PI_CODING_AGENT_DIR: '/pa' };
+  const dirs = Object.fromEntries(resolveSources({}, env, '/h').map((s) => [s.adapter.id, s.dir]));
+  assert.equal(dirs.claude, path.join('/h', '.claude', 'projects'));
+  assert.equal(dirs.codex, path.join('/cx', 'sessions'));
+  assert.equal(dirs.pi, path.join('/pa', 'sessions'));
+  assert.equal(resolveSources({}, { PI_CODING_AGENT_SESSION_DIR: '/ps' }, '/h').find((s) => s.adapter.id === 'pi').dir, '/ps');
   assert.deepEqual(resolveSources({ sources: ['codex'], dirs: { codex: '/d' } }, env, '/h').map((s) => [s.adapter.id, s.dir]), [['codex', '/d']]);
   assert.equal(resolveSources({ claudeDir: '/c' }, env, '/h')[0].dir, '/c');
 });

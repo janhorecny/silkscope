@@ -86,10 +86,17 @@ The success-rate gauge is `ok / (ok + err)`.
 
 Status rules per adapter:
 
-- **Claude:** `tool_result.is_error` → `error`.
+- **Claude, Droid:** `tool_result.is_error` → `error`.
+- **pi:** `toolResult.isError` → `error`.
+- **opencode:** part `state.status === 'error'`, or a non-zero `state.metadata.exit` → `error`.
+- **Gemini CLI:** tool call `status` other than `success` (error, cancelled) → `error`.
 - **Codex:** `metadata.exit_code` or `exit_code` in JSON output (0 = ok); else
   `Process exited with code N` / `Exit code: N` in text; else output starting with `error` or
-  `failed`. MCP results are errors when `result` has an `Err` key.
+  `failed`; `patch_apply_end.success === false`; `exec_command_end.exit_code`; newer `item_completed`
+  items by `exit_code`. MCP results are errors when `result` has an `Err` key or `Ok.isError`.
+
+Some agents report one call's outcome twice (Codex sends both `*_output` and `exec_command_end`).
+`Store.ingest()` counts the first result and lets a later one only upgrade `ok` to `error`.
 
 ## Shell command classification
 

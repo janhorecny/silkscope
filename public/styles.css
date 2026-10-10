@@ -244,3 +244,5 @@ body.neural #section .bar { box-shadow: 0 0 22px var(--c); }
 @media (prefers-reduced-motion: reduce) {
   .start.ready, .pz-play, .pz-logo { animation: none; }
 }
+
+.inst-more { color: var(--dim); font-size: 9.5px; padding: 3px 4px; text-align: right; }

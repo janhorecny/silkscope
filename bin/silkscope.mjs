@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { exec } from 'node:child_process';
 import { c, bold, dim, link, lockup, spectrum, home, row } from './term.mjs';
-import { startServer, VERSION } from '../server/server.mjs';
+import { startServer, resolveSources, VERSION } from '../server/server.mjs';
+import { check } from '../server/check.mjs';
 import { ADAPTERS } from '../server/sources/index.mjs';
 
 const args = process.argv.slice(2);
@@ -31,6 +32,7 @@ ${opt('--host <addr>', `bind address ${dim('(default 127.0.0.1)')}`)}
 ${opt('--no-open', 'do not open the browser')}
 ${opt('--demo', 'start with the synthetic demo feed')}
 ${opt('--hours <n>', `hours of history to replay on load ${dim('(default 8)')}`)}
+${opt('--check', 'test every agent adapter against your own transcripts, then exit')}
 ${opt('--sources <ids>', `comma-separated: ${ids.join(',')} ${dim('(default: every one found)')}`)}
 ${ADAPTERS.map((a) => opt(`--${a.id}-dir <dir>`, `${a.label} transcripts ${dim(`(default ${a.defaultDir({}, '~')})`)}`)).join('\n')}
 
@@ -46,6 +48,30 @@ const unknown = sources?.filter((s) => !ids.includes(s));
 if (unknown?.length) {
   console.error(`  ${c.venom('⚑')} unknown source: ${unknown.join(', ')} ${dim(`(known: ${ids.join(', ')})`)}`);
   process.exit(1);
+}
+
+// --check: how well does each adapter understand this machine's transcripts?
+if (flag('check')) {
+  const dirs = Object.fromEntries(ids.map((id) => [id, val(`${id}-dir`)]).filter(([, d]) => d));
+  const report = await check(resolveSources({ sources, dirs }));
+  console.log(`\n${header()}\n\n  ${bold('adapter check')} ${dim('· newest transcripts per agent · no content is shown')}\n`);
+  const pct = (a, b) => (b ? Math.round((a / b) * 1000) / 10 : 100);
+  for (const r of report) {
+    const name = c.spinneret(r.id.padEnd(10));
+    if (!r.found) { console.log(`  ${name}${dim(`not installed · ${home(r.dir)}`)}`); continue; }
+    if (r.note) { console.log(`  ${name}${c.warn(r.note)}`); continue; }
+    if (!r.actions) { console.log(`  ${name}${dim(`no activity yet · ${home(r.dir)}`)}`); continue; }
+    const m = pct(r.matched, r.results);
+    const resultsText = r.results ? `${bold(`${m}%`)} results matched ${dim(`(${r.matched}/${r.results})`)}` : dim('no tool calls yet');
+    const mark = m >= 99 && !r.badLines ? c.spinneret('✓') : m >= 90 ? c.warn('~') : c.venom('⚑');
+    console.log(`  ${mark} ${name}${String(r.sessions).padStart(5)} sessions  ${String(r.actions).padStart(7)} events  ` +
+      `${resultsText}  ${r.flagged} flagged  ${r.pending} open` +
+      (r.badLines ? `  ${c.venom(`${r.badLines} unreadable lines`)}` : '') + dim(`  ${r.ms} ms`));
+    const mix = Object.entries(r.cats).sort((x, y) => y[1] - x[1]).map(([k, v]) => `${c[k] ? c[k](k) : k} ${v}`).join(dim(' · '));
+    console.log(`    ${' '.repeat(10)}${mix}`);
+  }
+  console.log(`\n  ${dim('open = calls whose result never arrived (usually an interrupted session)')}\n`);
+  process.exit(0);
 }
 
 const hours = val('hours') === undefined ? undefined : Number(val('hours'));
@@ -69,8 +95,11 @@ const ready = Math.round(performance.now() - t0);
 const perSource = (id) => [...watcher.files.values()].filter((r) => r.source.agent === id).length;
 const srcRows = ADAPTERS.filter((a) => !sources || sources.includes(a.id)).map((a) => {
   const s = watcher.sources.find((x) => x.agent === a.id);
-  const name = c.spinneret(a.id.padEnd(8));
-  return s ? `${name}${home(s.dir)} ${dim(`· ${perSource(a.id).toLocaleString('en')} transcripts`)}` : `${name}${dim('not found')}`;
+  const name = c.spinneret(a.id.padEnd(10));
+  if (!s) return `${name}${dim('not found')}`;
+  const db = watcher.dbs.find((d) => d.src.agent === a.id);
+  if (a.kind === 'db') return `${name}${home(s.dir)} ${dim(db ? `· database · ${(a.sessions?.(db.h) ?? 0).toLocaleString('en')} sessions` : '· database not readable (Node ≥ 22.5 needed)')}`;
+  return `${name}${home(s.dir)} ${dim(`· ${perSource(a.id).toLocaleString('en')} transcripts`)}`;
 });
 console.log(`
 ${header()}

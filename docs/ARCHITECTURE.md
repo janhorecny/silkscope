@@ -45,8 +45,10 @@ flowchart LR
   WD --> P
 ```
 
-1. **Transcript file.** Claude Code and Codex append JSONL lines to files under their home
+1. **Transcript file.** Agents (Claude Code, Codex, pi, Gemini CLI, Droid) append JSONL lines to files under their home
    directories. Silkscope only reads them.
+   opencode keeps a SQLite database instead; its adapter is a database source the watcher polls
+   (see [ADDING-A-SOURCE.md](ADDING-A-SOURCE.md#4b-database-sources)).
 2. **Adapter** (`server/sources/<id>.mjs`). Turns one parsed JSON line into 0..n normalised events
    (see [EVENTS.md](EVENTS.md)). Per-file parse state lives in a `SourceContext`.
 3. **Watcher** (`server/watcher.mjs`). Discovers transcript files, polls them for growth, reads the

@@ -59,7 +59,12 @@ export class Store {
     if (ev.cat === 'result') {
       const orig = this.byId.get(ev.ref);
       if (!orig) return { kind: null };
-      if (orig.ev.status === 'pending') this.pending = Math.max(0, this.pending - 1);
+      // Some agents report one call's outcome twice (Codex: *_output and exec_command_end).
+      // Count the first; a later one may only upgrade ok -> error.
+      const prev = orig.ev.status;
+      if (prev !== 'pending' && !(prev === 'ok' && ev.status === 'error')) return { kind: null };
+      if (prev === 'pending') this.pending = Math.max(0, this.pending - 1);
+      else this.ok = Math.max(0, this.ok - 1);
       orig.ev.status = ev.status;
       orig.ev.result = ev.detail;
       if (ev.status === 'error') {
