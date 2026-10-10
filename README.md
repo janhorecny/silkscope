@@ -19,7 +19,11 @@ keeps score.
 It reads the transcripts your agents already write to disk, so there is nothing to configure and
 nothing to install into your agent. It runs on `127.0.0.1` and has zero dependencies.
 
-<video src="https://github.com/user-attachments/assets/757efd85-241e-44f6-9112-b397b51e1bd0" width="100%" controls muted playsinline></video>
+<p align="center">
+  <a href="https://github.com/user-attachments/assets/757efd85-241e-44f6-9112-b397b51e1bd0"><img src="brand/walkthrough-poster.jpg" alt="Silkscope walkthrough: five coding agents live on one map" width="100%"></a>
+  <br>
+  <a href="https://github.com/user-attachments/assets/757efd85-241e-44f6-9112-b397b51e1bd0"><b>▶ Watch the 54-second walkthrough</b></a>
+</p>
 
 ## Quick start
 
