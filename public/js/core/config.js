@@ -1,7 +1,7 @@
 // Brand tokens (see brand/BRAND.md). The section palette was chosen by optimisation: smallest
 // ΔE between any two colours (flag included) is 41 normal, 12 deuteranopia, 18 protanopia.
 export const BRAND = {
-  void: '#05060A', abyss: '#0A0C11', line: '#1A1F28', mist: '#6B7385', silk: '#ECEEF4',
+  void: '#05060A', abyss: '#0A0C11', line: '#1A1F28', mist: '#828BA0', silk: '#ECEEF4',
   spinneret: '#3FE0C0', venom: '#FF3D7F', warn: '#FFC23D', pending: '#FFD84A',
 };
 

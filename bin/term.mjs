@@ -8,7 +8,7 @@ const truecolor = /truecolor|24bit/i.test(env.COLORTERM || '') || env.TERM_PROGR
 
 // brand/BRAND.md tokens, with the closest xterm-256 index as a fallback.
 const PALETTE = {
-  silk: ['#ECEEF4', 255], mist: ['#6B7385', 244], spinneret: ['#3FE0C0', 43], venom: ['#FF3D7F', 204],
+  silk: ['#ECEEF4', 255], mist: ['#828BA0', 246], spinneret: ['#3FE0C0', 43], venom: ['#FF3D7F', 204],
   warn: ['#FFC23D', 214],
   prompt: ['#ECEEF4', 255], think: ['#16E2FB', 45], read: ['#399FED', 33], search: ['#B55AFE', 135],
   edit: ['#F2D747', 221], exec: ['#5FFCBD', 85], net: ['#E76245', 203], agent: ['#BDFF1D', 154],

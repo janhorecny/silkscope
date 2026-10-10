@@ -24,6 +24,9 @@ All notable changes to Silkscope are recorded here. The format follows
 - Tests now run on Windows (the npm test glob was not expanded by PowerShell/cmd); CI no longer
   cancels the other platforms when one fails.
 - The demo banner disappears after a few seconds instead of sitting in every frame.
+- Readability: the Mist text token is lighter (`#828BA0`, 5.9:1 on Void instead of 4.3:1); the
+  intro hint (was 2.6:1), crawl-log times (2.5:1) and code comments now meet WCAG AA; the intro's
+  skip checkbox is styled to match.
 - README: Quick start and Command line now agree (`npm start -- <options>` from the clone,
   `silkscope <options>` after `npm install -g .`); the demo has four sessions, not three.
 

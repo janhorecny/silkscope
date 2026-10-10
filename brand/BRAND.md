@@ -28,7 +28,7 @@ underline under the first two letters.
 | Void | `#05060A` | background everywhere |
 | Abyss | `#0A0C11` | panels |
 | Line | `#1A1F28` | borders, dividers, tracks |
-| Mist | `#6B7385` | secondary text, hints |
+| Mist | `#828BA0` | secondary text, hints (5.9:1 on Void; never go darker for text) |
 | Silk | `#ECEEF4` | primary text, the *prompt* section, silk draglines |
 
 ### Brand accents
