@@ -7,7 +7,7 @@ import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import { parseClaudeLine, parseCodexLine } from './parsers.mjs';
 
-const BACKFILL_BYTES = 1.5 * 1024 * 1024;
+const BACKFILL_BYTES = 768 * 1024; // tail of each recent transcript to replay
 
 async function walk(dir, out, depth = 0) {
   if (depth > 6) return;
@@ -39,27 +39,36 @@ export class Watcher extends EventEmitter {
 
   async start() {
     const now = Date.now();
-    const backfill = [];
+    // Index every transcript, newest first, then backfill only until there is enough history.
+    // Reading stops early, so start-up time and peak memory don't grow with the number of old sessions.
+    const all = [];
     for (const src of this.sources) {
       const list = [];
       await walk(src.dir, list);
       for (const f of list) {
-        let st;
-        try { st = fs.statSync(f); } catch { continue; }
-        const rec = this.#track(f, src, st);
-        if (now - st.mtimeMs < this.backfillMs) {
-          await this.#primeContext(rec, f);
-          const start = Math.max(0, st.size - BACKFILL_BYTES);
-          rec.offset = start;
-          rec.skipFirst = start > 0;
-          backfill.push(...(await this.#read(f, rec, st.size)));
-        } else {
-          rec.offset = st.size;
-        }
+        try { all.push([f, src, fs.statSync(f)]); } catch {}
+      }
+    }
+    all.sort((a, b) => b[2].mtimeMs - a[2].mtimeMs);
+    const backfill = [];
+    const want = Math.ceil(this.backfillMax * 1.3);
+    let read = 0;
+    for (const [f, src, st] of all) {
+      const rec = this.#track(f, src, st);
+      if (backfill.length < want && read < 80 && now - st.mtimeMs < this.backfillMs) {
+        read++;
+        await this.#primeContext(rec, f);
+        const start = Math.max(0, st.size - BACKFILL_BYTES);
+        rec.offset = start;
+        rec.skipFirst = start > 0;
+        backfill.push(...(await this.#read(f, rec, st.size)));
+      } else {
+        rec.offset = st.size;
       }
     }
     backfill.sort((a, b) => a.ts - b.ts);
     this.history = backfill.slice(-this.backfillMax);
+    this.stats.backfilledFiles = read;
     this.#loop();
     this.#scanLoop();
     return this;

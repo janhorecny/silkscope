@@ -155,3 +155,15 @@ kbd { font: inherit; opacity: .5; margin-left: 4px; }
 }
 
 body.neural #section .bar { box-shadow: 0 0 22px var(--c); }
+
+#perf { position: absolute; left: 14px; bottom: 14px; width: 300px; background: rgba(7,9,12,.9); border: 1px solid var(--line); border-top: 2px solid var(--mint); padding: 8px 10px; z-index: 2; backdrop-filter: blur(6px); font-size: 10px; }
+#perf header { display: flex; justify-content: space-between; font-weight: 600; letter-spacing: .1em; color: #d9dee8; margin-bottom: 6px; }
+#perf header em { font-style: normal; font-weight: 500; letter-spacing: 0; }
+#pfGraph { width: 100%; height: 64px; display: block; background: #0b0e13; }
+.pfLegend { display: flex; gap: 10px; margin: 3px 0 6px; font-size: 9px; }
+.dim { color: var(--dim); }
+#perf dl { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; }
+#perf dt { color: var(--dim); }
+#perf dd { color: #e6eaf1; text-align: right; font-variant-numeric: tabular-nums; }
+#perf .sep { border-top: 1px solid var(--line); padding-top: 3px; margin-top: 3px; }
+#perf .warn { color: var(--amber); } #perf .bad { color: var(--pink); }

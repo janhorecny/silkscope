@@ -56,6 +56,7 @@ Options:
 | double click, `0` | overview |
 | `1`–`8` | jump to section |
 | `M` · `D` · `space` | matrix rain · demo feed · pause |
+| `P` | performance and memory panel |
 | `?` | help |
 
 ## Performance
@@ -65,6 +66,12 @@ and off-screen culling. A frame costs ~1.5 ms of JS at 1720×950 with ~550 synap
 signals. Quality adapts to the real frame interval: below ~45 fps it drops to DPR 1 and static
 tentacles, then also turns off the matrix rain; it climbs back when there is headroom. The top bar
 shows `FPS` (and `eco` / `min` when degraded). Hidden tabs cost nothing (rendering pauses).
+
+Press `P` for the **PERF panel**: a live frame-time / JS-time graph (last 240 frames), FPS with p95,
+canvas bitmap memory, browser JS heap with a MB/min trend to spot leaks (Chrome only, via
+`performance.memory`), the server's RSS, heap and CPU %, and counts of every live object (events
+kept, targets, synapses, signals, crawlers, tentacles). Server start-up backfill reads newest
+transcripts first and stops once it has enough history: ~0.2 s and ~115 MB RSS with ~3 900 files.
 
 ## How it maps
 

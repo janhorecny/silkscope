@@ -2,6 +2,7 @@ import { Store } from './store.js';
 import { Scene } from './scene.js';
 import { Hud } from './hud.js';
 import { startDemo } from './demo.js';
+import { Perf } from './perf.js';
 import { CATEGORIES } from './config.js';
 
 const $ = (s) => document.querySelector(s);
@@ -17,6 +18,13 @@ let raw = [];
 const sessions = new Map();
 let filter = null;
 let stopDemo = null;
+
+const perf = new Perf(scene, () => {
+  let nodes = 0, tentacles = 0;
+  for (const c of scene.clusterList) nodes += c.nodes.size;
+  for (const sp of scene.spiders.values()) tentacles += sp.tentacles.length;
+  return { raw: raw.length, nodes, synapses: scene.synapses.size, signals: scene.signals.length, bursts: scene.bursts.length, spiders: scene.spiders.size, tentacles };
+});
 
 hud.getInstances = () => [...sessions.values()].sort((a, b) => b.lastTs - a.lastTs);
 hud.getCurrent = () => filter;
@@ -113,6 +121,7 @@ function connect() {
     if ((hello.demo || params.has('demo')) && !stopDemo) toggleDemo();
     else if (!hello.history.length && !stopDemo) banner('NO AGENT ACTIVITY YET · START CLAUDE CODE OR CODEX · PRESS D FOR DEMO', 'idle');
   });
+  es.addEventListener('ping', (m) => perf.setServer(JSON.parse(m.data)));
   es.addEventListener('ev', (m) => {
     if ($('#banner').classList.contains('idle')) banner('');
     ingest(JSON.parse(m.data), true);
@@ -147,6 +156,7 @@ const actions = {
   demo: toggleDemo,
   pause: () => { scene.paused = !scene.paused; $('#bPause').classList.toggle('on', scene.paused); },
   help: () => { $('#help').hidden = !$('#help').hidden; },
+  perf: () => perf.toggle(),
 };
 document.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', () => actions[b.dataset.act]()));
 $('#instances').addEventListener('click', (e) => {
@@ -166,6 +176,7 @@ window.addEventListener('keydown', (e) => {
   else if (k === 'v') actions.view();
   else if (k === 'l') actions.labels();
   else if (k === 'm') actions.matrix();
+  else if (k === 'p') actions.perf();
   else if (k === 'd') actions.demo();
   else if (k === ' ') { e.preventDefault(); actions.pause(); }
   else if (k === '?' || k === 'h') actions.help();
@@ -192,9 +203,11 @@ function loop(now) {
   const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));
   last = Math.max(last, now);
   try {
+    const t0 = performance.now();
     if (!scene.paused) scene.update(dt, now);
     scene.draw(now);
     hud.frame(now, dt);
+    perf.sample(now, performance.now() - t0);
   } catch (err) {
     if (loopErrors++ < 5) console.error('[swarm] frame error', err);
   }
@@ -204,7 +217,7 @@ connect();
 
 // Debug handle: lets tests drive frames even when the tab is hidden (rAF is paused there).
 window.__swarm = {
-  store, scene, hud, watch, setView, ingest,
+  store, scene, hud, perf, watch, setView, ingest,
   step(n = 60, dt = 1 / 60) {
     last = Math.max(last, performance.now());
     for (let i = 0; i < n; i++) { last += dt * 1000; scene.update(dt, last); hud.frame(last, dt); }

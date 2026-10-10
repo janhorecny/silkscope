@@ -40,12 +40,35 @@
       <button data-act="labels" id="bLabels" title="Show every label (L)">labels <kbd>L</kbd></button>
       <button data-act="matrix" id="bMatrix" class="on" title="Matrix rain (M)">matrix <kbd>M</kbd></button>
       <button data-act="demo" id="bDemo" title="Synthetic demo feed (D)">demo <kbd>D</kbd></button>
+      <button data-act="perf" id="bPerf" title="Performance and memory (P)">perf <kbd>P</kbd></button>
       <button data-act="pause" id="bPause" title="Pause (space)">pause <kbd>␣</kbd></button>
       <button data-act="help" title="Help (?)">?</button>
     </div>
     <div id="instances"></div>
     <div id="banner"></div>
     <aside id="inspector" hidden></aside>
+    <div id="perf" hidden>
+      <header><span>PERF</span><em id="pfQ" class="mint">full</em></header>
+      <canvas id="pfGraph"></canvas>
+      <div class="pfLegend"><span class="mint">■ frame time</span><span class="amber">■ js time</span><span class="dim">last 240 frames</span></div>
+      <dl>
+        <dt>fps</dt><dd id="pfFps">–</dd>
+        <dt>frame</dt><dd id="pfFrame">–</dd>
+        <dt>js / frame</dt><dd id="pfCpu">–</dd>
+        <dt>canvas</dt><dd id="pfCanvas">–</dd>
+        <dt class="sep">browser ram</dt><dd class="sep" id="pfHeap">–</dd>
+        <dt>heap trend</dt><dd id="pfHeapTrend">–</dd>
+        <dt class="sep">server ram</dt><dd class="sep" id="pfRss">–</dd>
+        <dt>server heap</dt><dd id="pfSHeap">–</dd>
+        <dt>server cpu</dt><dd id="pfSCpu">–</dd>
+        <dt>watched files</dt><dd id="pfFiles">–</dd>
+        <dt class="sep">events kept</dt><dd class="sep" id="pfRaw">–</dd>
+        <dt>targets</dt><dd id="pfNodes">–</dd>
+        <dt>synapses</dt><dd id="pfSyn">–</dd>
+        <dt>signals · bursts</dt><dd id="pfSig">–</dd>
+        <dt>crawlers · tentacles</dt><dd id="pfSp">–</dd>
+      </dl>
+    </div>
     <div id="help" hidden>
       <h3>CONTROLS</h3>
       <dl>
@@ -59,6 +82,7 @@
         <dt>double click · 0</dt><dd>overview</dd>
         <dt>1 – 8</dt><dd>jump to section</dd>
         <dt>M · D · space</dt><dd>matrix rain · demo feed · pause</dd>
+        <dt>P</dt><dd>performance and memory panel</dd>
       </dl>
       <h3>LEGEND</h3>
       <p><i class="sw" style="background:#ffd84a"></i>pending tool call &nbsp; <i class="sw" style="background:#ff3d81"></i>flagged: tool error &nbsp; tentacle = a tool call reaching its target · synapse = the agent moved from one target to the next · pulse = a call firing and cascading</p>

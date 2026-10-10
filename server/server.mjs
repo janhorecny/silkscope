@@ -8,6 +8,23 @@ import { Watcher } from './watcher.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.json': 'application/json', '.woff2': 'font/woff2' };
 
+// Process health for the PERF panel: memory and CPU share since the previous sample.
+let cpuPrev = process.cpuUsage(), cpuAt = process.hrtime.bigint();
+function serverStats(watcher) {
+  const now = process.hrtime.bigint();
+  const cpu = process.cpuUsage(cpuPrev);
+  const wallUs = Number(now - cpuAt) / 1000;
+  cpuPrev = process.cpuUsage(); cpuAt = now;
+  const m = process.memoryUsage();
+  return {
+    ...watcher.stats,
+    rss: m.rss, heapUsed: m.heapUsed, heapTotal: m.heapTotal,
+    cpu: wallUs > 0 ? ((cpu.user + cpu.system) / wallUs) * 100 : 0,
+    history: watcher.history.length,
+    uptime: process.uptime(),
+  };
+}
+
 export async function startServer(opts = {}) {
   const home = os.homedir();
   const claudeDir = opts.claudeDir || process.env.CLAUDE_CONFIG_DIR && path.join(process.env.CLAUDE_CONFIG_DIR, 'projects') || path.join(home, '.claude', 'projects');
@@ -33,7 +50,7 @@ export async function startServer(opts = {}) {
       };
       res.write(`event: hello\ndata: ${JSON.stringify(hello)}\n\n`);
       clients.add(res);
-      const ping = setInterval(() => res.write(`event: ping\ndata: ${JSON.stringify(watcher.stats)}\n\n`), 5000);
+      const ping = setInterval(() => res.write(`event: ping\ndata: ${JSON.stringify(serverStats(watcher))}\n\n`), 2000);
       req.on('close', () => { clearInterval(ping); clients.delete(res); });
       return;
     }
