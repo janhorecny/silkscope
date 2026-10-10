@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>Silkscope</title>
+  <defs>
+    <clipPath id="shell"><ellipse cx="128" cy="128" rx="58" ry="46"/></clipPath>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#3FE0C0" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#3FE0C0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="#05060A"/>
+  <circle cx="128" cy="128" r="118" fill="url(#glow)"/>
+  <g stroke="#3FE0C0" stroke-width="5" stroke-linecap="round" fill="none" opacity=".9">
+    <path d="M186 128 Q206 122 222 112"/><path d="M182 148 Q200 158 212 176"/><path d="M168 166 Q178 186 180 206"/>
+    <path d="M146 174 Q148 196 140 216"/><path d="M110 174 Q104 196 112 216"/><path d="M88 166 Q76 184 74 206"/>
+    <path d="M74 148 Q56 156 44 176"/><path d="M70 128 Q50 122 34 112"/><path d="M74 108 Q58 96 50 78"/>
+    <path d="M90 90 Q82 70 86 50"/><path d="M114 82 Q112 60 122 42"/><path d="M142 82 Q146 60 138 42"/>
+    <path d="M166 90 Q176 70 172 50"/><path d="M182 108 Q198 96 206 78"/>
+  </g>
+  <g fill="#3FE0C0">
+    <circle cx="222" cy="112" r="5"/><circle cx="212" cy="176" r="5"/><circle cx="180" cy="206" r="5"/><circle cx="140" cy="216" r="5"/>
+    <circle cx="112" cy="216" r="5"/><circle cx="74" cy="206" r="5"/><circle cx="44" cy="176" r="5"/><circle cx="34" cy="112" r="5"/>
+    <circle cx="50" cy="78" r="5"/><circle cx="86" cy="50" r="5"/><circle cx="122" cy="42" r="5"/><circle cx="138" cy="42" r="5"/>
+    <circle cx="172" cy="50" r="5"/><circle cx="206" cy="78" r="5"/>
+  </g>
+  <ellipse cx="128" cy="128" rx="58" ry="46" fill="#031012"/>
+  <g clip-path="url(#shell)" stroke="#3FE0C0" stroke-width="2" opacity=".55">
+    <path d="M70 0V256M82 0V256M94 0V256M106 0V256M118 0V256M130 0V256M142 0V256M154 0V256M166 0V256M178 0V256"/>
+    <path d="M0 86H256M0 98H256M0 110H256M0 122H256M0 134H256M0 146H256M0 158H256M0 170H256"/>
+  </g>
+  <ellipse cx="128" cy="128" rx="58" ry="46" fill="none" stroke="#3FE0C0" stroke-width="6"/>
+  <rect x="113" y="113" width="30" height="30" fill="#FF3D7F" transform="rotate(45 128 128)"/>
+</svg>

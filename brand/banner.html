@@ -1,0 +1,168 @@
+<!doctype html>
+<!-- Renders brand/banner.png (1280×640, GitHub social preview + README hero).
+     Regenerate: npm run brand   (headless Chrome screenshot of this file) -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=block">
+<style>
+  html, body { margin: 0; background: #05060A; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1280" height="640"></canvas>
+<script>
+const W = 1280, H = 640;
+const g = document.getElementById('c').getContext('2d');
+const FONT = '"JetBrains Mono", ui-monospace, Menlo, monospace';
+const C = {
+  void: '#05060A', silk: '#ECEEF4', mist: '#6B7385', teal: '#3FE0C0', venom: '#FF3D7F',
+  think: '#16E2FB', read: '#399FED', search: '#B55AFE', edit: '#F2D747', exec: '#5FFCBD', net: '#E76245', agent: '#BDFF1D',
+};
+const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const rgba = (h, a) => `rgba(${rgb(h).join(',')},${a})`;
+let seed = 11;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const gauss = () => { let u = 0, v = 0; while (!u) u = rnd(); v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(6.283 * v); };
+
+function nebula(cx, cy, R, color, intensity = 1) {
+  const pts = [];
+  const blobs = Array.from({ length: 5 }, () => ({ x: gauss() * R * 0.3, y: gauss() * R * 0.25, sx: R * (0.2 + rnd() * 0.25), sy: R * (0.15 + rnd() * 0.22) }));
+  for (let i = 0; i < 1500; i++) {
+    const b = blobs[(rnd() * blobs.length) | 0];
+    pts.push([cx + b.x + gauss() * b.sx, cy + b.y + gauss() * b.sy, rnd()]);
+  }
+  g.save();
+  g.globalCompositeOperation = 'lighter';
+  const glow = g.createRadialGradient(cx, cy, 0, cx, cy, R * 1.1);
+  glow.addColorStop(0, rgba(color, 0.16 * intensity));
+  glow.addColorStop(1, rgba(color, 0));
+  g.fillStyle = glow;
+  g.fillRect(cx - R * 1.2, cy - R * 1.2, R * 2.4, R * 2.4);
+  g.lineWidth = 0.5;
+  for (let i = 0; i < pts.length; i++) for (let k = 0; k < 3; k++) {
+    const j = (i + 1 + ((rnd() * 40) | 0)) % pts.length;
+    const d = Math.hypot(pts[i][0] - pts[j][0], pts[i][1] - pts[j][1]);
+    if (d < 20) { g.strokeStyle = rgba(color, (1 - d / 20) * 0.35 * intensity); g.beginPath(); g.moveTo(pts[i][0], pts[i][1]); g.lineTo(pts[j][0], pts[j][1]); g.stroke(); }
+  }
+  for (const [x, y, w] of pts) { g.fillStyle = rgba(color, (0.25 + w * 0.5) * intensity); const s = 0.6 + w; g.fillRect(x, y, s, s); }
+  for (let i = 0; i < 26; i++) { const p = pts[(rnd() * pts.length) | 0]; g.fillStyle = 'rgba(240,244,255,.85)'; g.fillRect(p[0], p[1], 1.8, 1.8); }
+  g.restore();
+  return pts;
+}
+
+function tag(x, y, text, color, flagged) {
+  g.font = `500 13px ${FONT}`;
+  const w = g.measureText(text).width + 12, h = 20;
+  if (flagged) { g.fillStyle = C.venom; g.fillRect(x, y - h / 2, w, h); g.fillStyle = '#16070d'; }
+  else { g.fillStyle = 'rgba(6,8,12,.88)'; g.fillRect(x, y - h / 2, w, h); g.strokeStyle = color; g.lineWidth = 1; g.strokeRect(x + 0.5, y - h / 2 + 0.5, w - 1, h - 1); g.fillStyle = color; }
+  g.fillText(text, x + 6, y + 4.5);
+}
+
+function tentacle(x0, y0, x1, y1, bend, color) {
+  const cx = (x0 + x1) / 2 - (y1 - y0) * bend, cy = (y0 + y1) / 2 + (x1 - x0) * bend;
+  g.strokeStyle = rgba(color, 0.55); g.lineWidth = 1.1;
+  g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(cx, cy, x1, y1); g.stroke();
+  for (let t = 0; t < 1; t += 0.035) {
+    const mt = 1 - t, x = mt * mt * x0 + 2 * mt * t * cx + t * t * x1, y = mt * mt * y0 + 2 * mt * t * cy + t * t * y1;
+    g.fillStyle = rgba(color, 0.35 + 0.6 * t); g.fillRect(x - 1, y - 1, 2, 2);
+  }
+  g.strokeStyle = color; g.beginPath(); g.arc(x1, y1, 4, 0, 6.283); g.stroke();
+}
+
+function crawler(x, y, s = 1) {
+  const glow = g.createRadialGradient(x, y, 4, x, y, 90 * s);
+  glow.addColorStop(0, rgba(C.teal, 0.28)); glow.addColorStop(1, rgba(C.teal, 0));
+  g.fillStyle = glow; g.beginPath(); g.arc(x, y, 90 * s, 0, 6.283); g.fill();
+  const rx = 30 * s, ry = 24 * s;
+  g.strokeStyle = rgba(C.teal, 0.85); g.lineWidth = 1.6;
+  for (let i = 0; i < 28; i++) {
+    const a = (i / 28) * 6.283, len = (22 + (i % 3) * 9) * s, w = Math.sin(i * 1.7) * 0.35;
+    const bx = x + Math.cos(a) * rx, by = y + Math.sin(a) * ry;
+    const tx = bx + Math.cos(a + w) * len, ty = by + Math.sin(a + w) * len;
+    g.beginPath(); g.moveTo(bx, by); g.quadraticCurveTo(bx + Math.cos(a) * len * 0.6, by + Math.sin(a) * len * 0.6, tx, ty); g.stroke();
+    g.fillStyle = C.teal; g.fillRect(tx - 1.5, ty - 1.5, 3, 3);
+  }
+  g.save();
+  g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 6.283); g.fillStyle = '#031012'; g.fill(); g.clip();
+  g.strokeStyle = rgba(C.teal, 0.5); g.lineWidth = 0.8;
+  for (let i = -rx; i <= rx; i += 4.5 * s) { g.beginPath(); g.moveTo(x + i, y - ry); g.lineTo(x + i, y + ry); g.stroke(); }
+  for (let j = -ry; j <= ry; j += 4.5 * s) { g.beginPath(); g.moveTo(x - rx, y + j); g.lineTo(x + rx, y + j); g.stroke(); }
+  g.restore();
+  g.strokeStyle = C.teal; g.lineWidth = 2.4; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 6.283); g.stroke();
+  g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.shadowColor = C.venom; g.shadowBlur = 18;
+  g.fillStyle = C.venom; g.fillRect(-7 * s, -7 * s, 14 * s, 14 * s); g.restore();
+}
+
+function draw() {
+  g.fillStyle = C.void; g.fillRect(0, 0, W, H);
+  // Stars and faint matrix columns.
+  for (let i = 0; i < 420; i++) { g.fillStyle = `rgba(200,210,235,${0.08 + rnd() * 0.35})`; g.fillRect(rnd() * W, rnd() * H, rnd() < 0.08 ? 1.6 : 0.9, rnd() < 0.08 ? 1.6 : 0.9); }
+  g.font = `11px ${FONT}`;
+  const glyphs = 'ｱｲｳｴｵｶｷｸｹｺ01ABCDEF<>{}=';
+  for (let col = 0; col < 40; col++) {
+    const x = 560 + col * 18; let y = rnd() * 200;
+    for (let k = 0; k < 14; k++) { g.fillStyle = rgba(C.exec, 0.03 + (k / 14) * 0.07); g.fillText(glyphs[(rnd() * glyphs.length) | 0], x, y); y += 15; }
+  }
+  // Nebulae (right half), the cosmic web between them, a crawler mid-reach.
+  const clouds = [
+    [770, 170, 150, C.think, 1.25], [1110, 150, 135, C.read, 1.15], [1120, 470, 150, C.edit, 1.35],
+    [800, 505, 135, C.exec, 1.15], [610, 340, 110, C.search, 0.8],
+  ];
+  for (const c of clouds) nebula(...c);
+  g.globalCompositeOperation = 'lighter';
+  g.lineWidth = 0.7;
+  for (let i = 0; i < clouds.length; i++) for (let j = i + 1; j < clouds.length; j++) for (let k = 0; k < 3; k++) {
+    const a = clouds[i], b = clouds[j];
+    g.strokeStyle = 'rgba(205,215,235,.07)';
+    g.beginPath(); g.moveTo(a[0] + gauss() * 30, a[1] + gauss() * 30);
+    g.quadraticCurveTo((a[0] + b[0]) / 2 + gauss() * 60, (a[1] + b[1]) / 2 + gauss() * 60, b[0] + gauss() * 30, b[1] + gauss() * 30); g.stroke();
+  }
+  g.globalCompositeOperation = 'source-over';
+  // Silk dragline from the previous section.
+  g.strokeStyle = 'rgba(236,240,250,.6)'; g.lineWidth = 1.3;
+  g.beginPath(); g.moveTo(780, 175); g.bezierCurveTo(760, 260, 900, 270, 975, 335); g.stroke();
+  const sx = 985, sy = 345;
+  tentacle(sx, sy, 1085, 450, 0.18, C.silk); tentacle(sx, sy, 1135, 395, -0.12, C.silk);
+  tentacle(sx, sy, 1060, 548, 0.22, C.silk); tentacle(sx, sy, 1080, 500, -0.1, '#FF3D7F');
+  tentacle(sx, sy, 1090, 232, 0.2, C.silk);
+  crawler(sx, sy, 1.15);
+  tag(1091, 450, 'checkout.ts · Edit', C.edit);
+  tag(1141, 395, 'auth.ts', C.edit);
+  tag(1066, 548, 'schema.prisma', C.edit);
+  tag(1086, 500, 'npm test · ⚑ error', C.venom, true);
+  tag(1096, 232, 'router.ts · Read', C.read);
+  g.font = `12px ${FONT}`; g.fillStyle = C.teal; g.fillText('claude · storefront', sx - 150, sy + 78);
+
+  // Left: fade the scene out behind the wordmark.
+  const fade = g.createLinearGradient(0, 0, 720, 0);
+  fade.addColorStop(0, 'rgba(5,6,10,1)'); fade.addColorStop(0.62, 'rgba(5,6,10,.92)'); fade.addColorStop(1, 'rgba(5,6,10,0)');
+  g.fillStyle = fade; g.fillRect(0, 0, 720, H);
+
+  // Mark + wordmark.
+  const mx = 92, my = 236;
+  g.save(); g.translate(mx, my); g.scale(0.62, 0.62); crawler(0, 0, 1); g.restore();
+  g.fillStyle = C.silk; g.font = `800 92px ${FONT}`; g.fillText('silkscope', 150, 270);
+  g.fillStyle = C.venom; g.fillRect(150, 292, 54, 4);
+  g.font = `500 26px ${FONT}`; g.fillStyle = C.silk; g.fillText('Watch your coding agents spin.', 72, 360);
+  g.font = `400 17px ${FONT}`; g.fillStyle = '#9AA3B5';
+  g.fillText('A live, local observatory for Claude Code & Codex.', 72, 398);
+  g.fillText('Zero dependencies · runs on your machine · nothing leaves it.', 72, 424);
+  // Section legend chips.
+  const cats = [['prompt', C.silk], ['think', C.think], ['read', C.read], ['search', C.search], ['edit', C.edit], ['exec', C.exec], ['net', C.net], ['agent', C.agent]];
+  let x = 72; g.font = `500 13px ${FONT}`;
+  for (const [n, c] of cats) {
+    g.fillStyle = c; g.fillRect(x, 470, 9, 9);
+    g.fillStyle = '#B9C1CF'; g.fillText(n, x + 15, 479);
+    x += g.measureText(n).width + 34;
+  }
+  g.font = `400 14px ${FONT}`; g.fillStyle = C.mist;
+  g.fillText('Claude Code  ·  Codex  ·  pluggable sources', 72, 560);
+  g.fillStyle = C.teal; g.fillText('▸', 56, 560);
+  document.title = 'ready';
+}
+document.fonts.load(`800 92px "JetBrains Mono"`).then(() => document.fonts.ready).then(draw, draw);
+</script>
+</body>
+</html>

@@ -3,17 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>agent swarm · live crawler for coding agents</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><ellipse cx='16' cy='16' rx='11' ry='8' fill='%23031012' stroke='%233fe0c0' stroke-width='2'/><rect x='13' y='13' width='6' height='6' fill='%23ff3d81' transform='rotate(45 16 16)'/></svg>" />
+  <title>silkscope · watch your coding agents spin</title>
+  <meta name="description" content="A live, local observatory for Claude Code and Codex." />
+  <meta name="theme-color" content="#05060A" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
+<div id="intro" role="dialog" aria-label="Silkscope is loading">
+  <div class="in-wrap">
+    <canvas class="in-web"></canvas>
+    <h1 class="in-word" aria-label="silkscope"><span>s</span><span>i</span><span>l</span><span>k</span><span>s</span><span>c</span><span>o</span><span>p</span><span>e</span></h1>
+    <p class="in-tag">watch your coding agents spin</p>
+    <ul class="in-steps">
+      <li data-step="renderer"><i></i>renderer<em>…</em></li>
+      <li data-step="stream"><i></i>stream<em>…</em></li>
+      <li data-step="transcripts"><i></i>transcripts<em>…</em></li>
+      <li data-step="history"><i></i>history<em>…</em></li>
+    </ul>
+    <button class="start" disabled><span>▸ start</span></button>
+    <p class="in-hint">enter to start · <label class="skip"><input type="checkbox"> skip this screen next time</label></p>
+  </div>
+</div>
 <div id="app">
   <header id="topbar">
     <div class="stats">
-      <span class="k">SWARM</span><b>agent-crawler</b>
+      <span class="wordmark"><img class="mark" src="/favicon.svg" alt=""><b>silkscope</b></span>
       <span class="k">AGENTS</span><b id="st-agents">0</b>
       <span class="k">LEGS</span><b id="st-legs">0</b>
       <span class="k">TENTACLES</span><b id="st-tent" class="mint">0</b>
@@ -26,7 +43,7 @@
       <span class="k">FRAME</span><b id="st-frame">0000</b>
       <span class="k">FPS</span><b id="st-fps" class="mint">60</b>
     </div>
-    <div class="brand"><span id="srcs">…</span><span class="pink">studio.agents</span><span id="live" class="live">○ CONNECTING</span></div>
+    <div class="brand"><span id="srcs">…</span><span class="ver"></span><span id="live" class="live">○ CONNECTING</span></div>
   </header>
   <nav id="tabs"></nav>
 
@@ -67,6 +84,14 @@
         <dt>crawlers · tentacles</dt><dd id="pfSp">–</dd>
       </dl>
     </div>
+    <div id="pauseOverlay" hidden>
+      <div class="pz-inner">
+        <img class="pz-logo" src="/favicon.svg" alt="">
+        <div class="pz-word">silkscope</div>
+        <button class="pz-play" aria-label="Resume" title="Resume (space)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></button>
+        <p class="pz-sub">paused · <b class="pz-count">0</b> new events recorded meanwhile · space to resume</p>
+      </div>
+    </div>
     <div id="help" hidden>
       <h3>CONTROLS</h3>
       <dl>
@@ -82,41 +107,12 @@
         <dt>L · M · D</dt><dd>cycle labels · matrix rain · demo feed</dd>
       </dl>
       <h3>LEGEND</h3>
-      <p><i class="sw" style="background:#ffd84a"></i>pending tool call &nbsp; <i class="sw" style="background:#ff3d81"></i>flagged: tool error &nbsp; tentacle = a tool call reaching its target · synapse = the agent moved from one target to the next · pulse = a call firing and cascading</p>
+      <p><i class="sw" style="background:#FFD84A"></i>pending tool call &nbsp; <i class="sw" style="background:#FF3D7F"></i>flagged: tool error &nbsp; tentacle = a tool call reaching its target · synapse = the agent moved from one target to the next · pulse = a call firing and cascading</p>
     </div>
   </main>
 
-  <section id="hud">
-    <div class="panel">
-      <header><span>CRAWL LOG</span><em id="logRate" class="mint">0 e/s</em></header>
-      <div id="log"></div>
-    </div>
-    <div class="panel">
-      <header><span>SECTIONS</span><em id="secCount" class="mint">0</em></header>
-      <div id="sections"></div>
-    </div>
-    <div class="panel">
-      <header><span>COVERAGE RADAR</span><em class="mint">live</em></header>
-      <canvas id="radar"></canvas>
-      <div class="mini"><span>agents</span><div class="track"><div id="agentsBar" class="fill mintbg"></div></div><b id="agentsN">0</b></div>
-      <div class="mini"><span>flags</span><div class="track"><div id="flagsBar" class="fill pinkbg"></div></div><b id="flagsN">0</b></div>
-    </div>
-    <div class="panel">
-      <header><span>ACTIVITY HEAT</span><em id="heatTotal" class="amber">0</em></header>
-      <div id="heat"></div>
-      <div class="big"><small>events per minute</small><strong id="epm">0/m</strong></div>
-      <div class="kv2"><span>targets</span><b id="hTargets">0</b><span>links</span><b id="hLinks" class="amber">0</b></div>
-    </div>
-    <div class="panel">
-      <header><span>SWARM HEALTH</span><em id="tokRate" class="mint">live</em></header>
-      <canvas id="spark"></canvas>
-      <canvas id="gauge"></canvas>
-    </div>
-    <div class="panel">
-      <header><span>SWARM.PY</span><em id="lps" class="pink">0 l/s</em></header>
-      <pre id="code"></pre>
-    </div>
-  </section>
+  <!-- the six panels are built by js/ui/panels/*.js -->
+  <section id="hud"></section>
 </div>
 <script type="module" src="/js/main.js"></script>
 </body>
