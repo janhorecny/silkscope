@@ -2,6 +2,7 @@
 
 | Document | What it covers |
 |-|-|
+- [AGENT-SUPPORT.md](AGENT-SUPPORT.md): verification status per agent (real transcripts, live, UI) and how to help close the gaps.
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The big picture: data flow from transcript file to pixels, module map, lifecycle, where state lives. |
 | [EVENTS.md](EVENTS.md) | The normalised event schema, categories, result resolution, shell classification, the `/stream` SSE protocol and backpressure. |
 | [ADDING-A-SOURCE.md](ADDING-A-SOURCE.md) | Step-by-step guide to supporting a new agent: adapter interface, worked example, client style, tests. |

@@ -148,14 +148,17 @@ If the frame rate drops, quality adapts on its own. Press `P` to watch the numbe
 
 ## Supported agents
 
-| agent | where Silkscope reads | how it was verified |
-|-|-|-|
-| Claude Code | `~/.claude/projects/**/*.jsonl` | live sessions: 100 % of 14,792 tool results matched to their calls |
-| Codex CLI | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` | fixture tests for every record shape in Codex 0.104 to 0.147 |
-| pi | `~/.pi/agent/sessions/**/*.jsonl` | live sessions: 100 % of 1,974 tool results matched |
-| opencode | `~/.local/share/opencode/opencode.db` (SQLite, read-only, Node ≥ 22.5) | live database: 100 % of 3,042 tool results matched |
-| Gemini CLI | `~/.gemini/tmp/*/chats/session-*.jsonl` | live sessions: 100 % of 17 tool results matched |
-| Factory Droid | `~/.factory/sessions/**/*.jsonl` | live sessions (text) plus fixture tests (tool blocks) |
+| agent | where Silkscope reads | real transcripts | live while running |
+|-|-|-|-|
+| Claude Code | `~/.claude/projects/**/*.jsonl` | ✓ 14,792 of 14,792 tool results matched | ✓ |
+| opencode | `~/.local/share/opencode/opencode.db` (SQLite, read-only, Node ≥ 22.5) | ✓ 3,042 of 3,042 | not yet |
+| pi | `~/.pi/agent/sessions/**/*.jsonl` | ✓ 1,974 of 1,974 | not yet |
+| Gemini CLI | `~/.gemini/tmp/*/chats/session-*.jsonl` | ✓ 17 of 17 | not yet |
+| Factory Droid | `~/.factory/sessions/**/*.jsonl` | partial (text only so far) | not yet |
+| Codex CLI | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` | not yet (fixture-tested for Codex 0.104 to 0.147) | simulated |
+
+Exactly what was tested for each agent, and what is still open, is in
+[docs/AGENT-SUPPORT.md](docs/AGENT-SUPPORT.md).
 
 Every location honours the agent's own environment variables (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`,
 `PI_CODING_AGENT_DIR`, `XDG_DATA_HOME`, `GEMINI_CLI_HOME`, `FACTORY_HOME`) and has a `--<agent>-dir` flag.
@@ -177,6 +180,7 @@ Adding another agent takes one adapter file in `server/sources/`. See
 
 ## Docs
 
+- [Agent support](docs/AGENT-SUPPORT.md): what is verified for each agent, and what is not yet
 - [Architecture](docs/ARCHITECTURE.md): data flow, modules, lifecycle
 - [Events](docs/EVENTS.md): the event schema and the SSE protocol
 - [Rendering](docs/RENDERING.md): layers, camera, crawler motion, neural cascade

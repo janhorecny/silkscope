@@ -92,7 +92,8 @@ The render loop must hold the display refresh rate (measured: ~1 ms JS per frame
 - **Add an agent:** one file in `server/sources/` (JSONL adapter, or `kind: 'db'` for databases),
   register it in `server/sources/index.mjs`, add a crawler style to `AGENTS` in
   `public/js/core/config.js`, add fixture tests. Guide: [docs/ADDING-A-SOURCE.md](docs/ADDING-A-SOURCE.md).
-  Then run `npm run check` against real data and aim for 100 % results matched.
+  Then run `npm run check` against real data and aim for 100 % results matched, and update
+  [docs/AGENT-SUPPORT.md](docs/AGENT-SUPPORT.md) with what you actually verified.
 - **Add a render layer:** one file in `public/js/render/layers/`, one entry in `LAYERS`
   (`render/scene.js`). See [docs/RENDERING.md](docs/RENDERING.md).
 - **Add a HUD panel:** one class extending `Panel` in `public/js/ui/panels/`, one `hud.add()` line in
