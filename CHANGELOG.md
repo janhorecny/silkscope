@@ -8,6 +8,8 @@ All notable changes to Silkscope are recorded here. The format follows
 ## [Unreleased]
 
 ### Added
+- 54-second product walkthrough video (`brand/silkscope-walkthrough.mp4`), recorded frame by frame
+  from the demo feed, linked from the README.
 - Scripted demo feed for videos: five agents (Claude Code, Codex, pi, opencode, Gemini CLI) on
   everyday projects work through stories (plan, search, read, edit, failing test, fix, verify,
   reply) in English, each in its own tool vocabulary, with natural pacing.

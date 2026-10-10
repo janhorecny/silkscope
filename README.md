@@ -20,7 +20,9 @@ It reads the transcripts your agents already write to disk, so there is nothing 
 nothing to install into your agent. It runs on `127.0.0.1` and has zero dependencies.
 
 <p align="center">
-  <img src="docs/img/crawler.jpg" alt="Crawler view: a session throws a fan of tentacles into the next section before it moves" width="100%">
+  <a href="brand/silkscope-walkthrough.mp4"><img src="brand/walkthrough-poster.jpg" alt="Silkscope walkthrough video: five coding agents live on one map" width="100%"></a>
+  <br>
+  <a href="brand/silkscope-walkthrough.mp4"><b>▶ Watch the 54-second walkthrough</b></a>
 </p>
 
 ## Quick start
