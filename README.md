@@ -30,22 +30,41 @@ Options:
 --codex-dir <dir>   default ~/.codex/sessions    (respects CODEX_HOME)
 ```
 
+## Two views, one or all instances
+
+- **crawler view** (default): the reference look. Sections are nebulae, each session is a crawler that
+  throws a fan of tentacles into the next section, arcs over on a silk dragline, then reaches its
+  targets. Labels appear only where a tentacle is touching (press `L` for every recent label).
+- **neural view** (`V`): ultra abstract. Every target is a neuron, every move from one target to the
+  next is a synapse (it thickens with use), every tool call fires and the signal cascades two hops
+  along the agent's real paths. No text except on hover.
+- **instances** (top right): watch *all sessions* in a calm wide shot, or pick one Claude / Codex
+  session. The map and every HUD panel are rebuilt for that instance only, and the camera follows it
+  tightly: a slow dolly-in while it works in a section, a pull-out-and-punch-in cut when it moves.
+
 ## Controls
 
 | input | action |
 |-|-|
+| instances panel, `Tab`, `A` | watch one instance, cycle instances, back to all |
+| `V` | crawler view ⇄ neural view |
+| `L` | label every recent target |
 | drag / wheel | pan / zoom around the cursor |
 | click a cloud | focus that section |
-| click a tag or dot | inspect every hit on that target, with input and result |
-| click a crawler (or roster entry) | follow that session |
+| click a tag, dot or neuron | inspect every hit on that target, with input and result |
+| click a crawler | inspect it, then "watch only this instance" |
 | double click, `0` | overview |
 | `1`–`8` | jump to section |
-| `F` | auto-follow the most active crawler |
-| `Tab` | cycle crawlers |
-| `M` | matrix rain |
-| `D` | demo feed |
-| `space` | pause motion |
+| `M` · `D` · `space` | matrix rain · demo feed · pause |
 | `?` | help |
+
+## Performance
+
+Everything is Canvas2D with pre-rendered nebula sprites, batched strokes (silk, synapses, links)
+and off-screen culling. A frame costs ~1.5 ms of JS at 1720×950 with ~550 synapses and ~100 live
+signals. Quality adapts to the real frame interval: below ~45 fps it drops to DPR 1 and static
+tentacles, then also turns off the matrix rain; it climbs back when there is headroom. The top bar
+shows `FPS` (and `eco` / `min` when degraded). Hidden tabs cost nothing (rendering pauses).
 
 ## How it maps
 

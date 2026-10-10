@@ -121,6 +121,12 @@ export class Cluster {
     this.heat = 0;      // decays; spikes on each event
     this.activeT = 0;   // 0..1 when this is the current section
     this.lastTs = 0;
+    this.flash = 0;
+  }
+
+  reset() {
+    this.nodes.clear();
+    this.count = 0; this.flags = 0; this.lit = 0; this.heat = 0; this.activeT = 0; this.lastTs = 0; this.flash = 0;
   }
 
   node(target) {
@@ -130,8 +136,8 @@ export class Cluster {
       // Place new words on the dense parts of the cloud, away from the exact centre.
       const p = this.pts[(Math.random() * this.pts.length) | 0];
       const j = 0.85;
-      n = { key, label: key, cluster: this, x: p[0] * j + gauss() * 6, y: p[1] * j + gauss() * 6,
-        hits: 0, born: performance.now(), lastHit: 0, flagged: false, pending: 0, events: [] };
+      n = { id: this.key + '|' + key, key, label: key, cluster: this, x: p[0] * j + gauss() * 6, y: p[1] * j + gauss() * 6,
+        hits: 0, born: performance.now(), lastHit: 0, flagged: false, pending: 0, events: [], syn: [], act: 0 };
       this.nodes.set(key, n);
       if (this.nodes.size > 220) {
         // Forget the coldest node so long sessions stay legible.

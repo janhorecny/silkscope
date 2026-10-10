@@ -92,6 +92,13 @@ export class Hud {
     $('#st-tokens').textContent = fmtNum(s.tokens);
     $('#st-t').textContent = ((now - this.t0) / 1000).toFixed(2);
     $('#st-frame').textContent = String(this.scene.frame % 10000).padStart(4, '0');
+    if (this.scene.frame % 20 === 0) {
+      const fps = Math.round(1000 / Math.max(1, this.scene.frameMs));
+      const q = this.scene.quality === 1 ? '' : this.scene.quality > 0 ? ' · eco' : ' · min';
+      const el = $('#st-fps');
+      el.textContent = `${Math.min(fps, 240)}${q}`;
+      el.className = fps < 40 ? 'pink' : fps < 55 ? 'amber' : 'mint';
+    }
   }
 
   // ------------------------------------------------------------ 4 Hz
@@ -117,16 +124,25 @@ export class Hud {
       $('#secSub').textContent = `${s.cats[c.key].count} events · ${active.nodes.size} targets · ${s.cats[c.key].flags} flagged · ${c.blurb}`;
     }
 
-    // Log.
-    const rate = s.total - this.lastTotal;
+    // Log: only new rows are inserted (and animated); existing rows are never re-rendered.
+    const rate = Math.max(0, s.total - this.lastTotal);
     this.lastTotal = s.total;
     this.rate = this.rate * 0.85 + rate * 4 * 0.15;
     $('#logRate').textContent = `${this.rate.toFixed(1)} e/s`;
-    const rows = s.log.slice(-14).reverse();
-    $('#log').innerHTML = rows.map((e) => {
-      const c = e.status === 'error' && e.verb === 'flag' ? FLAG : CAT[e.cat]?.color || '#aaa';
-      return `<div class="lr"><span class="t">${fmtTime(e.ts)}</span><span class="vb" style="color:${c}">${esc(String(e.verb || e.cat).slice(0, 9))}</span><span class="tg">${esc(e.target)}</span></div>`;
-    }).join('');
+    if (s.logSeq > this.logSeen) {
+      const log = $('#log');
+      const fresh = s.log.filter((e) => e.seq > this.logSeen).slice(-16);
+      const bulk = fresh.length > 3;
+      for (const e of fresh) {
+        const c = e.status === 'error' && e.verb === 'flag' ? FLAG : CAT[e.cat]?.color || '#aaa';
+        const row = document.createElement('div');
+        row.className = bulk ? 'lr' : 'lr new';
+        row.innerHTML = `<span class="t">${fmtTime(e.ts)}</span><span class="vb" style="color:${c}">${esc(String(e.verb || e.cat).slice(0, 9))}</span><span class="tg">${esc(e.target)}</span>`;
+        log.prepend(row);
+      }
+      while (log.children.length > 16) log.lastElementChild.remove();
+      this.logSeen = s.logSeq;
+    }
 
     // Sections.
     const max = Math.max(1, ...Object.values(s.cats).map((c) => c.count));
@@ -162,7 +178,15 @@ export class Hud {
     $('#agentsN').textContent = sc.spiders.size;
     $('#flagsBar').style.width = `${Math.min(100, s.flags * 3)}%`;
     $('#flagsN').textContent = s.flags;
-    this.#roster();
+    this.#instances();
+  }
+
+  reset() {
+    $('#log').innerHTML = '';
+    this.logSeen = 0;
+    this.lastTotal = 0;
+    this.rate = 0;
+    this._instKey = '';
   }
 
   #drawRadar() {
@@ -280,17 +304,26 @@ export class Hud {
     return h;
   }
 
-  #roster() {
-    const el = $('#roster');
-    const sp = [...this.scene.spiders.values()].sort((a, b) => b.lastActive - a.lastActive);
-    const key = sp.map((s) => s.session + s.cluster?.key + s.queue.length + (this.scene.followSpider === s)).join('|');
-    if (key === this._rosterKey) return;
-    this._rosterKey = key;
-    el.innerHTML = sp.map((s) => {
-      const sess = this.store.sessions.get(s.session);
-      return `<button class="crawler ${this.scene.followSpider === s ? 'on' : ''}" data-s="${esc(s.session)}" style="--c:${s.style.body}">
-        <i></i><b>${esc(s.style.label)}</b><span>${esc(s.project)}</span><em style="color:${s.cluster ? s.cluster.cat.color : '#888'}">${s.cluster ? s.cluster.cat.name : '—'}</em><small>${sess ? sess.events : 0}</small></button>`;
-    }).join('');
+  // Instance picker: watch everything, or one Claude/Codex session.
+  #instances() {
+    const list = this.getInstances ? this.getInstances() : [];
+    const cur = this.getCurrent ? this.getCurrent() : null;
+    const now = Date.now();
+    const ago = (ts) => { const m = (now - ts) / 60e3; return m < 1 ? 'now' : m < 60 ? `${m | 0}m` : m < 1440 ? `${(m / 60) | 0}h` : `${(m / 1440) | 0}d`; };
+    const live = list.filter((s) => now - s.lastTs < 120e3).length;
+    const shown = list.slice(0, 12);
+    if (cur && !shown.some((s) => s.id === cur)) { const c = list.find((s) => s.id === cur); if (c) shown.push(c); }
+    const key = cur + '|' + live + '|' + shown.map((s) => s.id + s.lastCat + s.events + ago(s.lastTs)).join('|');
+    if (key === this._instKey) return;
+    this._instKey = key;
+    $('#instances').innerHTML = `<header>INSTANCES <em>${live} live · ${list.length}</em></header>
+      <button class="inst all ${cur ? '' : 'on'}" data-s=""><i></i><b>all sessions</b><span>calm wide view</span><small>A</small></button>` +
+      shown.map((s) => {
+        const style = s.agent === 'codex' ? '#f2f2f2' : '#3fe0c0';
+        const isLive = now - s.lastTs < 120e3;
+        return `<button class="inst ${s.id === cur ? 'on' : ''} ${isLive ? 'live' : ''}" data-s="${esc(s.id)}" style="--c:${style}">
+          <i></i><b>${esc(s.agent)}</b><span>${esc(s.project)}</span><em style="color:${CAT[s.lastCat]?.color || '#777'}">${s.lastCat || '—'}</em><small>${s.events} · ${ago(s.lastTs)}</small></button>`;
+      }).join('');
   }
 
   showInspector(sel) {
@@ -318,7 +351,7 @@ export class Hud {
         <span>section</span><b>${sp.cluster ? sp.cluster.cat.name : '—'}</b>
         <span>queue</span><b>${sp.queue.length}</b>
         <span>last seen</span><b>${s.lastTs ? fmtTime(s.lastTs) : '—'}</b></div>
-        <p class="hint">camera is following this crawler · press F to release</p>`;
+        <button class="watch" data-s="${esc(sp.session)}">watch only this instance</button>`;
     }
     el.querySelector('.x').onclick = () => { this.scene.selected = null; el.hidden = true; };
   }

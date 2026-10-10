@@ -11,6 +11,7 @@ export class Store {
     this.sessions = new Map();
     this.byId = new Map();
     this.log = [];
+    this.logSeq = 0;
     this.buckets = new Map(); // minute -> { cats: {}, tokens, events }
     this.ok = 0;
     this.err = 0;
@@ -92,7 +93,7 @@ export class Store {
   }
 
   pushLog(ev) {
-    this.log.push(ev);
+    this.log.push({ ...ev, seq: ++this.logSeq });
     if (this.log.length > 60) this.log.shift();
   }
 

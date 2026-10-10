@@ -28,6 +28,19 @@ checked `filamental.space` as a candidate: it is a desktop 3D document/knowledge
 (Obsidian-style spaces with named connectors), with a different visual language and no live
 agent telemetry, so it is not the tool behind the video and was not used.
 
+## 1b. Second pass: dense frame analysis of the transitions (8 fps)
+
+- **Anticipation.** Before the crawler leaves a section it shoots a fan of 15–20 long curved tentacles
+  into the *next* cloud. Only then does the tab switch, the new cloud floods with colour and the old
+  one drops back to grey.
+- **The world moves, not the crawler.** The crawler sits near the screen centre; the camera tracks it
+  tightly, dollies in slowly while it works, pulls out and swings over on a section change, and
+  zooms all the way out for the final SHIP frame.
+- **Silk.** A near-white dragline stays behind the crawler for the whole section, smooth and arced.
+- **Cilia, not legs.** The body is ringed by ~25 short curved hairs (sea-urchin like) that ripple.
+- **Tentacles** are thin solid curves with dots flowing out, ending in a ring at the tagged word.
+- **Labels follow the tentacles.** Only touched words carry tags; everything else is a dot.
+
 ## 2. Motion principles we kept
 
 1. **Everything breathes.** Nothing is ever static: stars twinkle, clouds scale by ±0.8 %, idle
