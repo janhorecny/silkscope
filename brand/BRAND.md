@@ -73,5 +73,5 @@ Tabular numbers in the HUD.
 | `banner.png` | 1280×640 | README hero and GitHub social preview (Settings → Social preview) |
 | `logo.svg` | 256×256 | avatar, favicon source |
 | `banner.html` | | source of the banner; `sh brand/render.sh` re-renders it |
-| `silkscope-walkthrough.mp4` | 1920×1080, 54 s, silent | product walkthrough recorded from the demo feed (intro, all agents, follow one session, neural view, end card) |
-| `walkthrough-poster.jpg` | 1920×1080 | poster frame for the walkthrough |
+| `silkscope-walkthrough.mp4` | 1280×720, 54 s, silent, 4.7 MB | product walkthrough recorded from the demo feed (intro, all agents, follow one session, neural view, end card) |
+| `walkthrough-poster.jpg` | 1280×720 | poster frame for the walkthrough |
