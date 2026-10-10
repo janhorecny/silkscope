@@ -42,12 +42,12 @@ export function startDemo(emit) {
       const id = `demo-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       const pending = !['think', 'prompt'].includes(cat);
       const verb = s.agent === 'codex' && cat === 'exec' ? 'shell' : s.agent === 'codex' && cat === 'edit' ? 'patch' : VERB[cat];
-      emit({ id, ts: Date.now(), agent: s.agent, session: s.id, project: s.project, model: s.model, cat, verb, target,
+      emit({ demo: true, id, ts: Date.now(), agent: s.agent, session: s.id, project: s.project, model: s.model, cat, verb, target,
         detail: `${verb} ${target}`, status: pending ? 'pending' : 'ok', tokens: Math.round(rand(400, 9000)) });
       if (pending) {
         timers.push(setTimeout(() => {
           const err = cat === 'exec' ? Math.random() < 0.18 : Math.random() < 0.04;
-          emit({ id: id + ':r', ts: Date.now(), agent: s.agent, session: s.id, project: s.project, cat: 'result', ref: id,
+          emit({ demo: true, id: id + ':r', ts: Date.now(), agent: s.agent, session: s.id, project: s.project, cat: 'result', ref: id,
             status: err ? 'error' : 'ok', detail: err ? 'Error: exit code 1\n  ✕ 2 tests failed' : 'ok' });
         }, rand(300, 2600)));
       }

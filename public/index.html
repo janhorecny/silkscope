@@ -34,16 +34,14 @@
     <canvas id="cv"></canvas>
     <div id="section"><div class="bar"></div><div><h1 id="secTitle">∞ SWARM</h1><p id="secSub">waiting for the first crawl</p></div></div>
     <div id="controls">
-      <button data-act="view" id="bView" title="Crawler / neural view (V)">crawler <kbd>V</kbd></button>
-      <button data-act="all" title="Watch all instances (A)">all <kbd>A</kbd></button>
-      <button data-act="overview" id="bOverview" title="Overview (0)">overview <kbd>0</kbd></button>
-      <button data-act="labels" id="bLabels" title="Show every label (L)">labels <kbd>L</kbd></button>
-      <button data-act="matrix" id="bMatrix" class="on" title="Matrix rain (M)">matrix <kbd>M</kbd></button>
-      <button data-act="demo" id="bDemo" title="Synthetic demo feed (D)">demo <kbd>D</kbd></button>
-      <button data-act="perf" id="bPerf" title="Performance and memory (P)">perf <kbd>P</kbd></button>
-      <button data-act="pause" id="bPause" title="Pause (space)">pause <kbd>␣</kbd></button>
-      <button data-act="help" title="Help (?)">?</button>
+      <div class="seg" id="viewSeg" title="View (V)"><button data-view="crawler">crawler</button><button data-view="neural">neural</button></div>
+      <button data-act="overview" id="bOverview" title="Fit the whole map (0 · double-click)">overview</button>
+      <button data-act="pause" id="bPause" title="Freeze motion; data keeps arriving (space)">pause</button>
+      <button data-act="perf" id="bPerf" title="Performance and memory (P)">perf</button>
+      <button data-act="settings" id="bSettings" title="Settings (S)">⚙ settings</button>
+      <button data-act="help" title="Help and shortcuts (?)">?</button>
     </div>
+    <div id="settings" hidden></div>
     <div id="instances"></div>
     <div id="banner"></div>
     <aside id="inspector" hidden></aside>
@@ -72,17 +70,16 @@
     <div id="help" hidden>
       <h3>CONTROLS</h3>
       <dl>
-        <dt>instances panel</dt><dd>watch one Claude / Codex session, or all</dd>
-        <dt>A · Tab</dt><dd>all instances · cycle instances</dd>
-        <dt>V</dt><dd>crawler view ⇄ neural view (abstract)</dd>
-        <dt>L</dt><dd>label every recent target</dd>
+        <dt>crawler / neural</dt><dd>the reference look, or an abstract network of targets (V)</dd>
+        <dt>overview</dt><dd>fit the whole map; press again to resume following (0, double-click)</dd>
+        <dt>pause</dt><dd>freeze motion; events keep being recorded (space)</dd>
+        <dt>perf</dt><dd>frame timing, browser and server memory, object counts (P)</dd>
+        <dt>settings</dt><dd>camera, labels, agents, quality, motion, rain, demo (S)</dd>
+        <dt>instances</dt><dd>click a session to watch only it · A all · Tab next · − collapse</dd>
         <dt>drag · wheel</dt><dd>pan · zoom around the cursor</dd>
-        <dt>click cloud</dt><dd>focus a section</dd>
-        <dt>click word / neuron</dt><dd>inspect every hit on that target</dd>
-        <dt>double click · 0</dt><dd>overview</dd>
-        <dt>1 – 8</dt><dd>jump to section</dd>
-        <dt>M · D · space</dt><dd>matrix rain · demo feed · pause</dd>
-        <dt>P</dt><dd>performance and memory panel</dd>
+        <dt>click</dt><dd>cloud: focus section · word / neuron: inspect · crawler: details</dd>
+        <dt>1 – 8</dt><dd>jump to a section</dd>
+        <dt>L · M · D</dt><dd>cycle labels · matrix rain · demo feed</dd>
       </dl>
       <h3>LEGEND</h3>
       <p><i class="sw" style="background:#ffd84a"></i>pending tool call &nbsp; <i class="sw" style="background:#ff3d81"></i>flagged: tool error &nbsp; tentacle = a tool call reaching its target · synapse = the agent moved from one target to the next · pulse = a call firing and cascading</p>

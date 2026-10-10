@@ -42,22 +42,43 @@ Options:
   session. The map and every HUD panel are rebuilt for that instance only, and the camera follows it
   tightly: a slow dolly-in while it works in a section, a pull-out-and-punch-in cut when it moves.
 
-## Controls
+## Toolbar
+
+| control | what it does |
+|-|-|
+| **crawler · neural** | the reference look, or the abstract neural network of targets (`V`) |
+| **overview** | fit the whole map; press again to resume following (`0`, double-click) |
+| **pause** | freeze motion; events keep being recorded (`space`) |
+| **perf** | frame timing, browser and server memory, object counts (`P`) |
+| **⚙ settings** | everything below, saved in the browser (`S`) |
+| **?** | help and shortcuts |
+| **INSTANCES** | `all sessions` or one session (agent, project, current section, events, last activity). A filled pulsing dot means active in the last 2 min; `DEMO` marks synthetic sessions; `−` collapses the list; hover a row for session id and model. `A` all, `Tab` next |
+
+## Settings
+
+| setting | options | meaning |
+|-|-|-|
+| View | crawler / neural | same as the toolbar switch |
+| Camera | cinematic / calm / still | cuts and slow dolly-in on section changes · smooth follow · never moves on its own |
+| Labels | touched / all recent / none | only targets a tentacle is on (as in the reference) · every recent target · hover only |
+| Agents | both / claude / codex | which agents feed the map and HUD |
+| Instance list | 15 min / 1 h / 8 h / all | hide sessions idle longer than this |
+| Render quality | auto / full / eco | auto drops resolution and effects below ~45 fps |
+| Motion | full / reduced | reduced removes tentacle fans, bursts, camera swoops and rain (defaults to reduced if the OS asks for it) |
+| Matrix rain | on / off | background glyphs |
+| Demo feed | off / on | synthetic sessions, marked DEMO, never written anywhere |
+
+## Other input
 
 | input | action |
 |-|-|
-| instances panel, `Tab`, `A` | watch one instance, cycle instances, back to all |
-| `V` | crawler view ⇄ neural view |
-| `L` | label every recent target |
 | drag / wheel | pan / zoom around the cursor |
 | click a cloud | focus that section |
 | click a tag, dot or neuron | inspect every hit on that target, with input and result |
-| click a crawler | inspect it, then "watch only this instance" |
-| double click, `0` | overview |
+| click a crawler | details, then "watch only this instance" |
 | `1`–`8` | jump to section |
-| `M` · `D` · `space` | matrix rain · demo feed · pause |
-| `P` | performance and memory panel |
-| `?` | help |
+| `L` · `M` · `D` | cycle labels · matrix rain · demo feed |
+| `Esc` | close panels |
 
 ## Performance
 

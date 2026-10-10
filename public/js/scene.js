@@ -59,8 +59,12 @@ export class Scene {
     this.mouse = { x: -1e4, y: -1e4, wx: 0, wy: 0, down: false, moved: false };
     this.hover = null;
     this.selected = null;
+    // User settings (see settings.js); defaults match the reference.
     this.matrix = true;
-    this.allLabels = false;
+    this.labelMode = 'touched'; // touched | all | none
+    this.qualityMode = 'auto';  // auto | full | eco
+    this.cameraMode = 'cinematic'; // cinematic | calm | still
+    this.reduced = false;       // reduced motion
     this.paused = false;
     this.speed = 1;
     this.frame = 0;
@@ -201,6 +205,8 @@ export class Scene {
   }
 
   #fly(now, dip = 0.42) {
+    if (this.cameraMode === 'still') return;
+    if (this.cameraMode === 'calm' || this.reduced) dip = 0;
     this.flight = { x0: this.cam.x, y0: this.cam.y, z0: this.cam.z, t0: now, dur: 950, dip };
   }
 
@@ -330,7 +336,7 @@ export class Scene {
   // Fire a neuron; the signal cascades two hops along its strongest synapses.
   fire(node, energy, depth, from, now) {
     node.act = Math.min(1.8, (node.act || 0) + energy);
-    if (depth >= 2 || this.signals.length > MAX_SIGNALS) return;
+    if (depth >= (this.reduced ? 1 : 2) || this.signals.length > MAX_SIGNALS) return;
     const out = node.syn.filter((s) => s.a !== from && s.b !== from).sort((p, q) => q.w - p.w).slice(0, depth ? 3 : 6);
     for (const s of out) {
       const to = s.a === node ? s.b : s.a;
@@ -341,6 +347,7 @@ export class Scene {
   }
 
   burst(cl, node, rgb, n = 14) {
+    if (this.reduced) return;
     if (this.quality < 0.5) n = Math.ceil(n / 3);
     const [x, y] = cl.worldNode(node);
     for (let i = 0; i < n; i++) {
@@ -385,7 +392,7 @@ export class Scene {
           sp.enteredAt = now;
           item.cl.flash = 1;
           // Anticipation: a fan of long tentacles into the next cloud before the body moves.
-          const fan = backlog > 12 ? 4 : 12;
+          const fan = this.reduced ? 0 : backlog > 12 ? 4 : 12;
           for (let i = 0; i < fan; i++) {
             const p = pick(item.cl.pts);
             sp.reach({ cluster: item.cl, x: p[0] * 0.8, y: p[1] * 0.8, fan: true }, false, now + i * 14);
@@ -395,7 +402,7 @@ export class Scene {
           sp.goTo(tx, ty, lead / this.speed, now, this.speed);
           sp.pendingReach = { ...item, min: now + (lead + 300) / this.speed, at: now + (lead + 900) / this.speed };
           // Camera cut, skipped if the last one just ended so think/exec ping-pong stays calm.
-          if (this.#watched(sp) && this.mode === 'auto' && now - this.lastFlightEnd > 700 && backlog < 12) this.#fly(now);
+          if (this.cameraMode === 'cinematic' && this.#watched(sp) && this.mode === 'auto' && now - this.lastFlightEnd > 700 && backlog < 12) this.#fly(now);
         } else {
           sp.goTo(tx, ty, 0, now, this.speed);
           sp.pendingReach = { ...item, min: now, at: now + 90 / this.speed };
@@ -449,7 +456,10 @@ export class Scene {
     const ov = this.overviewCam();
     let lam = 1.6;
     const sp = this.single ? this.spiders.get(this.single) : this.followSpider;
-    if (this.mode === 'overview' || (this.mode === 'auto' && !sp)) {
+    const still = this.cameraMode === 'still' && this.mode === 'auto';
+    if (still) {
+      // Still camera: never moves on its own; only the user pans and zooms.
+    } else if (this.mode === 'overview' || (this.mode === 'auto' && !sp)) {
       // All instances: a calm wide shot that only leans toward the busy section.
       Object.assign(this.camT, ov);
       if (this.mode === 'auto' && this.activeCluster && now - this.lastActivity < 30000) {
@@ -466,8 +476,9 @@ export class Scene {
       const dwell = clamp((now - sp.enteredAt) / 9000, 0, 1);
       this.camT.x = sp.cluster ? lerp(sp.cluster.x, sp.x, 0.55) : sp.x;
       this.camT.y = sp.cluster ? lerp(sp.cluster.y, sp.y, 0.55) : sp.y;
-      this.camT.z = ov.z * (2.1 + dwell * 0.75);
-      lam = 3;
+      const cine = this.cameraMode === 'cinematic';
+      this.camT.z = ov.z * (2.1 + (cine ? dwell * 0.75 : 0.2));
+      lam = cine ? 3 : 1.3;
     }
     if (this.mode === 'free') lam = 10;
     if (this.flight) {
@@ -495,7 +506,7 @@ export class Scene {
     g.fillStyle = '#050608';
     g.fillRect(0, 0, W, H);
 
-    if (this.matrix && this.quality > 0) this.#drawRain(g, now);
+    if (this.matrix && this.quality > 0 && !this.reduced) this.#drawRain(g, now);
     this.#drawStars(g, now);
 
     const z = this.cam.z;
@@ -518,7 +529,7 @@ export class Scene {
       g.fillRect(b.x - b.s / 2, b.y - b.s / 2, b.s, b.s);
     }
     for (const sp of this.spiders.values()) sp.drawSilk(g, z, now);
-    for (const sp of this.spiders.values()) sp.drawTentacles(g, z, now, neural || this.quality < 0.5);
+    for (const sp of this.spiders.values()) sp.drawTentacles(g, z, now, neural || this.quality < 0.5 || this.reduced);
     if (this.quality > 0) this.#drawCursorWeb(g, z);
     g.globalCompositeOperation = neural ? 'lighter' : 'source-over';
     const prim = this.primarySpider();
@@ -546,6 +557,11 @@ export class Scene {
     this.cpuMs = (this.cpuMs || cpuMs) * 0.95 + cpuMs * 0.05;
     if (this.frame % 90) return;
     const q = this.quality;
+    if (this.qualityMode !== 'auto') {
+      this.quality = this.qualityMode === 'full' ? 1 : 0.5;
+      if (q !== this.quality) this.resize();
+      return;
+    }
     if (this.frameMs > 22 && q > 0) this.quality = q > 0.5 ? 0.5 : 0;
     else if (this.frameMs < 17.5 && this.cpuMs < 6 && q < 1 && this.frame - (this._upAt || 0) > 600) { this.quality = q < 0.5 ? 0.5 : 1; this._upAt = this.frame; }
     if ((q < 0.5) !== (this.quality < 0.5) || (q === 1) !== (this.quality === 1)) this.resize();
@@ -787,7 +803,10 @@ export class Scene {
     this.tagBoxes = [];
     const cands = [];
     const touched = new Set();
-    for (const sp of this.spiders.values()) for (const t of sp.tentacles) if (!t.retract && t.node) touched.add(t.node);
+    // With many crawlers on screen only the most active one's tentacles carry labels,
+    // otherwise the map turns into a wall of text.
+    const labelled = this.spiders.size > 2 && !this.single ? [this.primarySpider()].filter(Boolean) : [...this.spiders.values()];
+    for (const sp of labelled) for (const t of sp.tentacles) if (!t.retract && t.node) touched.add(t.node);
 
     for (const c of this.clusterList) {
       const [sx, sy] = this.toScreen(c.x, c.y);
@@ -807,15 +826,16 @@ export class Scene {
       // Tags follow the tentacles (as in the reference); L shows every recent word; the
       // neural view stays wordless apart from hover.
       const nodes = [...c.nodes.values()].sort((a, b) => b.lastHit - a.lastHit);
-      const limit = this.allLabels && !neural ? (overview ? 8 : Math.round(5 + c.activeT * 14)) : 0;
+      const limit = this.labelMode === 'all' && !neural ? (overview ? 8 : Math.round(5 + c.activeT * 14)) : 0;
       for (let i = 0; i < nodes.length && i < 60; i++) {
         const n = nodes[i];
         const age = (now - n.lastHit) / 1000;
         let a = 0, pri = 0;
         if (i < limit) { a = overview ? 0.7 : 0.35 + c.activeT * 0.6; pri = 1 + c.activeT - i * 0.02; }
-        if (!neural) {
+        if (!neural && this.labelMode !== 'none') {
           if (touched.has(n)) { a = Math.max(a, 0.95); pri = Math.max(pri, 4 - age * 0.05); }
-          if (age < 5) { a = Math.max(a, 1 - Math.max(0, age - 3) / 2); pri = Math.max(pri, 3 - age * 0.1); }
+          const freshFor = labelled.length < this.spiders.size ? 2.5 : 5;
+          if (age < freshFor) { a = Math.max(a, 1 - Math.max(0, age - freshFor * 0.6) / (freshFor * 0.4)); pri = Math.max(pri, 3 - age * 0.1); }
           if (n.flagged && c.activeT > 0.5 && !overview) { a = Math.max(a, 0.85); pri = Math.max(pri, 2); }
         }
         if (this.hover?.node === n || this.selected === n) { a = 1; pri = 10; }

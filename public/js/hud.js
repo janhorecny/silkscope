@@ -306,23 +306,29 @@ export class Hud {
 
   // Instance picker: watch everything, or one Claude/Codex session.
   #instances() {
-    const list = this.getInstances ? this.getInstances() : [];
+    const all = this.getInstances ? this.getInstances() : [];
     const cur = this.getCurrent ? this.getCurrent() : null;
+    const opt = this.getListOptions ? this.getListOptions() : { windowMin: 0, agents: 'both' };
     const now = Date.now();
-    const ago = (ts) => { const m = (now - ts) / 60e3; return m < 1 ? 'now' : m < 60 ? `${m | 0}m` : m < 1440 ? `${(m / 60) | 0}h` : `${(m / 1440) | 0}d`; };
+    const ago = (ts) => { const m = (now - ts) / 60e3; return m < 1 ? 'now' : m < 60 ? `${m | 0}m ago` : m < 1440 ? `${(m / 60) | 0}h ago` : `${(m / 1440) | 0}d ago`; };
+    const list = all.filter((s) => (opt.agents === 'both' || s.agent === opt.agents) && (!opt.windowMin || now - s.lastTs < opt.windowMin * 60e3));
     const live = list.filter((s) => now - s.lastTs < 120e3).length;
     const shown = list.slice(0, 12);
-    if (cur && !shown.some((s) => s.id === cur)) { const c = list.find((s) => s.id === cur); if (c) shown.push(c); }
-    const key = cur + '|' + live + '|' + shown.map((s) => s.id + s.lastCat + s.events + ago(s.lastTs)).join('|');
+    if (cur && !shown.some((s) => s.id === cur)) { const c = all.find((s) => s.id === cur); if (c) shown.push(c); }
+    const hidden = list.length - Math.min(12, list.length);
+    const key = [cur, live, list.length, this.collapsed, ...shown.map((s) => s.id + s.lastCat + s.events + ago(s.lastTs))].join('|');
     if (key === this._instKey) return;
     this._instKey = key;
-    $('#instances').innerHTML = `<header>INSTANCES <em>${live} live · ${list.length}</em></header>
-      <button class="inst all ${cur ? '' : 'on'}" data-s=""><i></i><b>all sessions</b><span>calm wide view</span><small>A</small></button>` +
+    const el = $('#instances');
+    el.classList.toggle('collapsed', !!this.collapsed);
+    el.innerHTML = `<header><span>INSTANCES</span><span><em>${live} live</em> / ${list.length} shown${hidden ? ` · ${hidden} more` : ''}<button class="col" title="Collapse / expand">${this.collapsed ? '+' : '−'}</button></span></header>
+      <button class="inst all ${cur ? '' : 'on'}" data-s="" title="Every session at once, calm wide camera (A)"><i></i><b>all sessions</b><span>wide calm view</span><small></small></button>` +
       shown.map((s) => {
         const style = s.agent === 'codex' ? '#f2f2f2' : '#3fe0c0';
         const isLive = now - s.lastTs < 120e3;
-        return `<button class="inst ${s.id === cur ? 'on' : ''} ${isLive ? 'live' : ''}" data-s="${esc(s.id)}" style="--c:${style}">
-          <i></i><b>${esc(s.agent)}</b><span>${esc(s.project)}</span><em style="color:${CAT[s.lastCat]?.color || '#777'}">${s.lastCat || '—'}</em><small>${s.events} · ${ago(s.lastTs)}</small></button>`;
+        const tip = `${s.agent} · ${s.project}${s.demo ? ' (synthetic demo)' : ''}\nsession ${s.id}${s.model ? '\nmodel ' + s.model : ''}\nlast section: ${s.lastCat || '—'} · ${s.events} events · last activity ${ago(s.lastTs)}`;
+        return `<button class="inst ${s.id === cur ? 'on' : ''} ${isLive ? 'live' : ''}" data-s="${esc(s.id)}" style="--c:${style}" title="${esc(tip)}">
+          <i></i><b>${esc(s.agent)}</b><span>${esc(s.project)}${s.demo ? '<em class="demo">DEMO</em>' : ''}</span><em style="color:${CAT[s.lastCat]?.color || '#777'}">${s.lastCat || '—'}</em><small>${s.events} ev · ${ago(s.lastTs)}</small></button>`;
       }).join('');
   }
 
