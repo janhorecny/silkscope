@@ -9,6 +9,8 @@ All notable changes to Silkscope are recorded here. The format follows
 
 ### Added
 - `npm run check` shortcut for `--check`.
+- `AGENTS.md` with instructions for AI coding agents (and `CLAUDE.md` importing it).
+- Author credit (Jan Horecny) in the README, `--help` and package metadata.
 
 ### Fixed
 - Tests now run on Windows (the npm test glob was not expanded by PowerShell/cmd); CI no longer

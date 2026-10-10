@@ -192,6 +192,9 @@ deliberately has zero dependencies and no build step, and it should stay that wa
 
 ## Credits
 
+Silkscope is created and maintained by **Jan Horecny**.
+
+
 The crawler's motion is modelled on a prompt-building screen recording credited to
 **defileo** on X, which first showed a role, objective and context as nebulae and a crawler walking
 between them. Silkscope is an independent implementation that applies the idea to live agent

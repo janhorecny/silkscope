@@ -36,7 +36,7 @@ ${opt('--check', 'test every agent adapter against your own transcripts, then ex
 ${opt('--sources <ids>', `comma-separated: ${ids.join(',')} ${dim('(default: every one found)')}`)}
 ${ADAPTERS.map((a) => opt(`--${a.id}-dir <dir>`, `${a.label} transcripts ${dim(`(default ${a.defaultDir({}, '~')})`)}`)).join('\n')}
 
-  ${dim('docs')}  ${link('https://github.com/janhorecny/silkscope#readme')}
+  ${dim('docs')}  ${link('https://github.com/janhorecny/silkscope#readme')}  ${dim('· by Jan Horecny')}
 `);
   process.exit(0);
 }
