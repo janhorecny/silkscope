@@ -38,6 +38,7 @@ function serverStats(watcher) {
  * Sources whose dir doesn't exist are dropped by the watcher.
  */
 export function resolveSources(opts = {}, env = process.env, home = os.homedir()) {
+  if (opts.noSources) return []; // --demo-only: nothing from disk
   const want = opts.sources?.length ? new Set(opts.sources) : null;
   return ADAPTERS
     .filter((a) => !want || want.has(a.id))

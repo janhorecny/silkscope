@@ -35,7 +35,8 @@ test/*.test.mjs          node:test suites                   docs/  technical doc
 ```bash
 npm start                 # http://127.0.0.1:7777, tails real transcripts, opens the browser
 npm start -- --no-open --port 7799   # CLI flags go after `--`
-npm run demo              # synthetic sessions only (marked DEMO)
+npm run demo              # real agents plus the scripted demo feed (marked DEMO)
+npm run demo:video        # demo feed only, nothing read from disk (docs/DEMO.md)
 npm run check             # how well each adapter reads this machine's transcripts (no content shown)
 node bin/silkscope.mjs --help
 ```
@@ -114,8 +115,8 @@ The render loop must hold the display refresh rate (measured: ~1 ms JS per frame
 - Transcripts contain code, prompts and possibly secrets. The server is read-only (never write to
   agent directories, open databases read-only), binds to `127.0.0.1` by default and makes no
   outbound requests. Keep it that way.
-- Nothing from transcripts may end up in the repo: no screenshots of real sessions (use the demo:
-  run with empty `--claude-dir/--codex-dir` and `?demo=1`), no fixture copied verbatim.
+- Nothing from transcripts may end up in the repo: no screenshots of real sessions (use
+  `npm run demo:video`, which reads nothing from disk), no fixture copied verbatim.
 - `npm run check` and any diagnostics print aggregate counts only, never transcript content.
 
 ## Pull requests and commits

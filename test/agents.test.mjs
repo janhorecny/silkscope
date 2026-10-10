@@ -214,3 +214,25 @@ test('opencode: reads a real-shaped SQLite database, then polls only new writes'
   db.close();
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+import { startDemo } from '../public/js/core/demo.js';
+import { CATEGORIES } from '../public/js/core/config.js';
+
+test('demo: warm start is deterministic per seed, English, and well-formed', () => {
+  const take = (seed) => {
+    const evs = [];
+    const stop = startDemo(() => {}, { seed, warm: true, past: (ev) => evs.push(ev) });
+    stop();
+    return evs;
+  };
+  const a = take(7), b = take(7), c = take(8);
+  const sig = (evs) => evs.map((e) => `${e.session}|${e.cat}|${e.target}|${e.status}`).join('\n');
+  assert.ok(a.length > 50);
+  assert.equal(sig(a), sig(b));
+  assert.notEqual(sig(a), sig(c));
+  const cats = new Set([...CATEGORIES.map((x) => x.key), 'result']);
+  assert.ok(a.every((e) => cats.has(e.cat) && e.demo === true && e.session && e.project));
+  assert.equal(new Set(a.map((e) => e.agent)).size, 5);
+  assert.ok(a.some((e) => e.cat === 'result' && e.status === 'error'), 'stories include failing tests');
+  assert.ok(a.filter((e) => typeof e.target === 'string').every((e) => /^[\x20-\x7E·…]+$/.test(e.target)), 'targets are plain English/ASCII');
+});

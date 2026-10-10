@@ -19,7 +19,7 @@ export class TopbarPanel extends Panel {
       setText(this.live, on ? '● LIVE' : '○ OFFLINE');
     });
     ctx.bus.on('hello', ({ hello }) => {
-      setText(this.srcs, hello.sources.map((s) => s.agent).join(' + ') || 'no sources');
+      setText(this.srcs, hello.sources.map((s) => s.agent).join(' + ') || (hello.demo ? 'demo' : 'no sources'));
       if (hello.version) setText(this.ver, `v${hello.version}`);
     });
   }

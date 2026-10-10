@@ -87,4 +87,4 @@ export function rgbaQ(rgb, a) {
 
 // Bumped when a web font finishes loading, so cached text widths can be re-measured.
 export const fontEpoch = { v: 0 };
-document.fonts?.addEventListener?.('loadingdone', () => { fontEpoch.v++; });
+globalThis.document?.fonts?.addEventListener?.('loadingdone', () => { fontEpoch.v++; }); // no-op outside a browser (tests)

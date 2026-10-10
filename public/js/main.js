@@ -31,6 +31,8 @@ const store = new Store();
 const settings = new Settings((key, value) => bus.emit('setting', { key, value }));
 const scene = new Scene(document.querySelector('#cv'), { store, bus });
 const feed = new Feed({ store, bus, settings });
+// Demo knobs for reproducible video takes: ?seed=42 &pace=1.5 &warm=0
+feed.demoOptions = { seed: params.get('seed') ?? undefined, pace: Number(params.get('pace')) || 1, warm: params.get('warm') !== '0' };
 
 const hud = new Hud({ store, scene, feed, bus, settings });
 for (const P of [TopbarPanel, TabsPanel, HeadingPanel, ToolbarPanel, InstancesPanel, InspectorPanel, BannerPanel]) hud.add(P);

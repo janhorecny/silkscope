@@ -54,11 +54,13 @@ export class Intro {
   // First SSE hello: we know how much history there is.
   ready(hello) {
     if (!this.active || this.isReady) return;
-    const agents = hello.sources.map((s) => s.agent).join(' + ') || 'no agent sources';
+    const demoOnly = !hello.sources.length && hello.demo;
+    const agents = hello.sources.map((s) => s.agent).join(' + ') || (demoOnly ? 'demo' : 'no agent sources');
     this.step('stream', 'done', `connected · ${agents}`);
-    this.step('transcripts', 'done', `${(hello.files || 0).toLocaleString('en')} indexed`);
+    this.step('transcripts', 'done', demoOnly ? 'not read · demo only' : `${(hello.files || 0).toLocaleString('en')} indexed`);
     const n = hello.history.length;
-    this.step('history', 'done', n ? `${n.toLocaleString('en')} events ready to replay` : 'no activity yet · the demo feed is one key away (D)');
+    const demo = hello.demo || new URLSearchParams(location.search).has('demo');
+    this.step('history', 'done', n ? `${n.toLocaleString('en')} events ready to replay` : demo ? 'demo feed · 5 synthetic sessions ready' : 'no activity yet · the demo feed is one key away (D)');
     this.progress = 1;
     // Let the web finish spinning before START lights up (never less than ~1.4 s of intro).
     this.readyAt = Math.max(performance.now() + 450, this.t0 + 1400);

@@ -38,6 +38,7 @@
   "scripts": {
     "start": "node bin/silkscope.mjs",
     "demo": "node bin/silkscope.mjs --demo",
+    "demo:video": "node bin/silkscope.mjs --demo-only --seed 7 --clean",
     "check": "node bin/silkscope.mjs --check",
     "test": "node scripts/test.mjs",
     "release": "node scripts/release.mjs",

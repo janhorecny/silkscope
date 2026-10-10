@@ -31,6 +31,9 @@ ${opt('--port <n>', `port to listen on ${dim('(default 7777, next free if busy)'
 ${opt('--host <addr>', `bind address ${dim('(default 127.0.0.1)')}`)}
 ${opt('--no-open', 'do not open the browser')}
 ${opt('--demo', 'start with the synthetic demo feed')}
+${opt('--demo-only', 'demo feed and nothing from disk (for screenshots and videos)')}
+${opt('--seed <n> / --pace <x>', 'demo: reproducible run / tempo multiplier')}
+${opt('--clean', 'demo: hide the DEMO banner and badges (recording)')}
 ${opt('--hours <n>', `hours of history to replay on load ${dim('(default 8)')}`)}
 ${opt('--check', 'test every agent adapter against your own transcripts, then exit')}
 ${opt('--sources <ids>', `comma-separated: ${ids.join(',')} ${dim('(default: every one found)')}`)}
@@ -84,13 +87,15 @@ const t0 = performance.now();
 const { url, watcher } = await startServer({
   port: Number(val('port')) || undefined,
   host: val('host'),
-  demo: flag('demo'),
+  demo: flag('demo') || flag('demo-only'),
+  noSources: flag('demo-only'),
   backfillHours: hours,
   sources,
   dirs: Object.fromEntries(ids.map((id) => [id, val(`${id}-dir`)]).filter(([, d]) => d)),
 });
 
-const target = flag('demo') ? `${url}/?demo=1` : url;
+const demoQuery = new URLSearchParams({ demo: '1', ...(val('seed') ? { seed: val('seed') } : {}), ...(val('pace') ? { pace: val('pace') } : {}), ...(flag('clean') ? { clean: '1' } : {}) });
+const target = flag('demo') || flag('demo-only') ? `${url}/?${demoQuery}` : url;
 const ready = Math.round(performance.now() - t0);
 const perSource = (id) => [...watcher.files.values()].filter((r) => r.source.agent === id).length;
 const srcRows = ADAPTERS.filter((a) => !sources || sources.includes(a.id)).map((a) => {
@@ -106,9 +111,9 @@ ${header()}
 
   ${c.venom('▸')} ${bold(link(target))}
 
-${row('sources', srcRows[0] || dim('none found · try --demo'))}
-${srcRows.slice(1).map((r) => row('', r)).join('\n')}
-${row('history', `${watcher.history.length.toLocaleString('en')} events ready to replay ${dim(`· started in ${ready} ms`)}`)}
+${row('sources', flag('demo-only') ? c.think('demo only · nothing is read from disk') : srcRows[0] || dim('none found · try --demo'))}
+${flag('demo-only') ? '' : srcRows.slice(1).map((r) => row('', r)).join('\n')}
+${row('history', flag('demo-only') ? `5 synthetic sessions ${dim(`· seed ${val('seed') ?? 'random'} · pace ${val('pace') ?? 1}`)}` : `${watcher.history.length.toLocaleString('en')} events ready to replay ${dim(`· started in ${ready} ms`)}`)}
 ${row('privacy', dim(`bound to ${url.replace(/^http:\/\//, '').replace(/:\d+$/, '')} · read-only · no telemetry`))}
 
   ${dim('ctrl+c to stop')}

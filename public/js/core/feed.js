@@ -85,7 +85,12 @@ export class Feed {
 
   setDemo(on) {
     if (!on && this.stopDemo) { this.stopDemo(); this.stopDemo = null; this.bus.emit('demo', { on: false }); }
-    else if (on && !this.stopDemo) { this.stopDemo = startDemo((ev) => this.ingest(ev, true)); this.bus.emit('demo', { on: true }); }
+    else if (on && !this.stopDemo) {
+      // Warm start folds a few minutes of finished demo work in silently, then parks the crawlers.
+      this.stopDemo = startDemo((ev) => this.ingest(ev, true), { ...this.demoOptions, past: (ev) => this.ingest(ev, false) });
+      if (this.demoOptions?.warm !== false) this.bus.emit('rebuild', { sessions: this.#recent() });
+      this.bus.emit('demo', { on: true });
+    }
   }
 
   #apply(ev, animate) {

@@ -2,6 +2,7 @@
 
 | Document | What it covers |
 |-|-|
+- [DEMO.md](DEMO.md): the scripted demo feed, options (seed, pace, clean, warm) and video recording tips.
 - [AGENT-SUPPORT.md](AGENT-SUPPORT.md): verification status per agent (real transcripts, live, UI) and how to help close the gaps.
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The big picture: data flow from transcript file to pixels, module map, lifecycle, where state lives. |
 | [EVENTS.md](EVENTS.md) | The normalised event schema, categories, result resolution, shell classification, the `/stream` SSE protocol and backpressure. |

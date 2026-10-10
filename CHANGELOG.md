@@ -8,6 +8,12 @@ All notable changes to Silkscope are recorded here. The format follows
 ## [Unreleased]
 
 ### Added
+- Scripted demo feed for videos: five agents (Claude Code, Codex, pi, opencode, Gemini CLI) on
+  everyday projects work through stories (plan, search, read, edit, failing test, fix, verify,
+  reply) in English, each in its own tool vocabulary, with natural pacing.
+- Demo options: `--demo-only` (nothing read from disk), `--seed` (reproducible takes), `--pace`,
+  `--clean` (no DEMO banner/badges), warm start (`?warm=0` to disable); `npm run demo:video`.
+- `docs/DEMO.md` with recording tips.
 - `npm run check` shortcut for `--check`.
 - `AGENTS.md` with instructions for AI coding agents (and `CLAUDE.md` importing it).
 - Author credit (Jan Horecny) in the README, `--help` and package metadata.
@@ -17,6 +23,7 @@ All notable changes to Silkscope are recorded here. The format follows
 ### Fixed
 - Tests now run on Windows (the npm test glob was not expanded by PowerShell/cmd); CI no longer
   cancels the other platforms when one fails.
+- The demo banner disappears after a few seconds instead of sitting in every frame.
 - README: Quick start and Command line now agree (`npm start -- <options>` from the clone,
   `silkscope <options>` after `npm install -g .`); the demo has four sessions, not three.
 

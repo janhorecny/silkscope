@@ -3,6 +3,7 @@
 
 import { CAT, agentStyle } from '../../core/config.js';
 import { Panel, esc, toggleClass } from '../panel.js';
+import { CLEAN } from './banner.js';
 
 const LS_COLLAPSED = 'swarm.collapsed';
 const SHOWN = 12;
@@ -52,7 +53,7 @@ export class InstancesPanel extends Panel {
         const isLive = now - s.lastTs < 120e3;
         const tip = `${s.agent} · ${s.project}${s.demo ? ' (synthetic demo)' : ''}\nsession ${s.id}${s.model ? '\nmodel ' + s.model : ''}\nlast section: ${s.lastCat || '—'} · ${s.events} events · last activity ${ago(s.lastTs)}`;
         return `<button class="inst ${s.id === cur ? 'on' : ''} ${isLive ? 'live' : ''}" data-s="${esc(s.id)}" style="--c:${style}" title="${esc(tip)}">
-          <i></i><b>${esc(s.agent)}</b><span>${esc(s.project)}${s.demo ? '<em class="demo">DEMO</em>' : ''}</span><em style="color:${CAT[s.lastCat]?.color || '#777'}">${s.lastCat || '—'}</em><small>${s.events} ev · ${ago(s.lastTs)}</small></button>`;
+          <i></i><b>${esc(s.agent)}</b><span>${esc(s.project)}${s.demo && !CLEAN ? '<em class="demo">DEMO</em>' : ''}</span><em style="color:${CAT[s.lastCat]?.color || '#777'}">${s.lastCat || '—'}</em><small>${s.events} ev · ${ago(s.lastTs)}</small></button>`;
       }).join('') +
       (older > 0 ? `<p class="inst-more">${older} older session${older > 1 ? 's' : ''} hidden by the ${windowMin >= 60 ? windowMin / 60 + ' h' : windowMin + ' min'} window · ⚙ settings → instance list</p>` : '');
   }
