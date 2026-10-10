@@ -75,3 +75,7 @@ Tabular numbers in the HUD.
 | `banner.html` | | source of the banner; `sh brand/render.sh` re-renders it |
 | `silkscope-walkthrough.mp4` | 1280×720, 54 s, silent, 4.7 MB | product walkthrough recorded from the demo feed (intro, all agents, follow one session, neural view, end card) |
 | `walkthrough-poster.jpg` | 1280×720 | poster frame for the walkthrough |
+
+The README plays the walkthrough from a GitHub attachment (`github.com/user-attachments/...`), because
+GitHub does not render videos stored in the repository. To replace it: `gh issue create --attach
+brand/silkscope-walkthrough.mp4 …` (or drag the file into any issue), then swap the URL in the README.
