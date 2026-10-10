@@ -34,8 +34,7 @@ npm start            # opens http://127.0.0.1:7777 and starts tailing your agent
 
 There is nothing to `npm install`: Node 18 or newer is all you need (opencode support needs
 Node 22.5+). No agents running yet? `npm run demo` adds five scripted sessions (one per agent),
-clearly marked `DEMO`; `npm run demo:video` shows only the demo, ready for recording
-([docs/DEMO.md](docs/DEMO.md)).
+clearly marked `DEMO`.
 
 Silkscope opens on an intro screen. The crawler spins a web while it connects and indexes your
 transcripts, and the web is finished when loading is done. Press **START** to watch the last few
@@ -123,10 +122,6 @@ silkscope --hours 24 --port 8080         # after `npm install -g .`
   --host <addr>       bind address (default 127.0.0.1)
   --no-open           do not open the browser
   --demo              start with the synthetic demo feed      (shortcut: npm run demo)
-  --demo-only         demo feed only, nothing read from disk  (shortcut: npm run demo:video)
-  --seed <n>          demo: reproducible run
-  --pace <x>          demo: tempo multiplier
-  --clean             demo: no DEMO banner or badges
   --hours <n>         hours of history to replay on load (default 8)
   --check             test every agent adapter against your own transcripts, then exit
                                                               (shortcut: npm run check)
@@ -135,6 +130,9 @@ silkscope --hours 24 --port 8080         # after `npm install -g .`
   --version           print the version
   --help              print this list
 ```
+
+Options for recording the demo (`--demo-only`, `--seed`, `--pace`, `--clean`) are in
+[docs/DEMO.md](docs/DEMO.md).
 
 ## Privacy
 
