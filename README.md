@@ -30,13 +30,16 @@ git clone https://github.com/janhorecny/silkscope && cd silkscope
 npm start            # opens http://127.0.0.1:7777 and starts tailing your agents
 ```
 
+There is nothing to `npm install`: Node 18 or newer is all you need (opencode support needs
+Node 22.5+). No agents running yet? `npm run demo` adds four synthetic sessions, clearly marked
+`DEMO`.
+
 Silkscope opens on an intro screen. The crawler spins a web while it connects and indexes your
 transcripts, and the web is finished when loading is done. Press **START** to watch the last few
 hours replay into the map. You can skip the intro in settings or with `?intro=0`.
 
-There is nothing to `npm install`. Node 18 or newer is all you need. No agents running yet? Try
-`npm run demo` for three synthetic sessions, clearly marked `DEMO`. To get a global `silkscope`
-command, run `npm install -g .` inside the clone.
+**Optional: a global command.** Run `npm install -g .` once inside the clone. After that, `silkscope`
+works from any directory and takes the same options (see [Command line](#command-line)).
 
 ## How it works
 
@@ -104,18 +107,26 @@ Every setting is explained in [docs/UI.md](docs/UI.md).
 
 ## Command line
 
-```
-silkscope [options]
+The same options work from the clone and from the global command. With npm, put `--` before them
+so npm passes them through:
 
+```bash
+npm start -- --hours 24 --port 8080      # from the clone
+silkscope --hours 24 --port 8080         # after `npm install -g .`
+```
+
+```
   --port <n>          port to listen on (default 7777, auto-increments if busy)
   --host <addr>       bind address (default 127.0.0.1)
   --no-open           do not open the browser
-  --demo              start with the synthetic demo feed
+  --demo              start with the synthetic demo feed      (shortcut: npm run demo)
   --hours <n>         hours of history to replay on load (default 8)
   --check             test every agent adapter against your own transcripts, then exit
+                                                              (shortcut: npm run check)
   --sources <ids>     comma-separated: claude,codex,pi,opencode,gemini,droid (default: every one found)
   --<agent>-dir <dir> where that agent's transcripts live (see Supported agents)
   --version           print the version
+  --help              print this list
 ```
 
 ## Privacy
@@ -149,7 +160,8 @@ If the frame rate drops, quality adapts on its own. Press `P` to watch the numbe
 Every location honours the agent's own environment variables (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`,
 `PI_CODING_AGENT_DIR`, `XDG_DATA_HOME`, `GEMINI_CLI_HOME`, `FACTORY_HOME`) and has a `--<agent>-dir` flag.
 
-**Check it on your machine.** `silkscope --check` runs every adapter over your newest transcripts and
+**Check it on your machine.** `npm run check` (or `silkscope --check`) runs every adapter over your
+newest transcripts and
 reports how many tool results it matched to their calls. Nothing is shown from the transcripts
 themselves. Anything well below 100 % means an agent changed its format, and an issue with that
 output helps fix it quickly.

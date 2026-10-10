@@ -35,9 +35,10 @@
   "scripts": {
     "start": "node bin/silkscope.mjs",
     "demo": "node bin/silkscope.mjs --demo",
-    "test": "node --test test/*.test.mjs",
-    "brand": "sh brand/render.sh",
-    "release": "node scripts/release.mjs"
+    "check": "node bin/silkscope.mjs --check",
+    "test": "node scripts/test.mjs",
+    "release": "node scripts/release.mjs",
+    "brand": "sh brand/render.sh"
   },
   "files": [
     "bin",

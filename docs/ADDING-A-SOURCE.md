@@ -141,7 +141,7 @@ import aider from './aider.mjs';
 export const ADAPTERS = [claude, codex, aider];
 ```
 
-That is all the server needs. `silkscope --help` now lists `--aider-dir <dir>`,
+That is all the server needs. `npm start -- --help` (or `silkscope --help`) now lists `--aider-dir <dir>`,
 `--sources claude,aider` works, and the banner shows the directory when it exists.
 
 ## 4. Client

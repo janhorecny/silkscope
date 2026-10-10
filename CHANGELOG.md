@@ -7,6 +7,15 @@ All notable changes to Silkscope are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `npm run check` shortcut for `--check`.
+
+### Fixed
+- Tests now run on Windows (the npm test glob was not expanded by PowerShell/cmd); CI no longer
+  cancels the other platforms when one fails.
+- README: Quick start and Command line now agree (`npm start -- <options>` from the clone,
+  `silkscope <options>` after `npm install -g .`); the demo has four sessions, not three.
+
 ## [0.2.0] - 2026-10-10
 
 ### Added

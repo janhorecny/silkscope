@@ -8,6 +8,7 @@ no build step, plain ES modules, Canvas2D. Please keep it that way.
 ```bash
 npm start          # http://127.0.0.1:7777, tails your real transcripts
 npm run demo       # synthetic sessions, no agent needed
+npm run check      # how well each adapter reads your own transcripts
 npm test           # node:test, < 1 s
 ```
 
